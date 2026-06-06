@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}First Nations Winhanganha Archive 500{% endblock %}
+{% block hero_actions %}
+  <a href="{{ url_for('items') }}" class="btn btn-outline-light btn-lg mt-4">Browse Archive</a>
+  <a href="{{ url_for('home') }}#cultural-protocols" class="btn btn-outline-light btn-lg mt-4 ml-2">Cultural Protocols</a>
+{% endblock %}
+{% block content %}
+<div class="container padtb text-center"> 
+      <h1>500 Error!</h1>
+      <p>An internal server error occurred. </p>
+      <p><a class="btn btn-dark mybutton" href="{{ url_for('home') }}">Return Home</a></p>
+</div>
+{% endblock %}

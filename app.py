@@ -7,13 +7,14 @@ from dotenv import load_dotenv
 #from flask_login import LoginManager
 from flask_bootstrap import Bootstrap4
 from flask import Flask, abort, g, redirect, render_template, request, url_for
+import werkzeug
 
 
 BASE_DIR = Path(__file__).resolve().parent
 load_dotenv(BASE_DIR / ".env")
 
 
-app = Flask(__name__)
+app = Flask(__name__.split('.')[0])
 
 
 
@@ -109,6 +110,15 @@ def next_id(table_name: str, id_column: str, prefix: str, width: int = 3) -> str
     )
     max_num = current["max_num"] or 0
     return f"{prefix}{max_num + 1:0{width}d}"
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+     return render_template("404.html"), 404
+
+@app.errorhandler(500)
+def internal_error(e):
+     return render_template("500.html"), 500
 
 
 @app.route("/")
@@ -318,4 +328,4 @@ if __name__ == "__main__":
     port = int(os.environ.get('FLASK_PORT'))
     debug_val = os.getenv("FLASK_DEBUG")
     is_debug = debug_val.lower() == "true" if debug_val else False
-    app.run(host=host, port=port, debug=is_debug)
+    app.run(host=host, port=port, debug=is_debug, load_dotenv=True)
