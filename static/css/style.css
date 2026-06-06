@@ -1,0 +1,91 @@
+body {
+  padding-top: 55px;
+}
+
+.custom-jumbotron {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.68), rgba(0, 0, 0, 0.68)), url('../img/artwall.jpg');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  min-height: 420px;
+}
+
+.hero-content {
+  padding-top: 60px;
+  padding-bottom: 60px;
+}
+
+.padtb {
+  padding-top: 50px;
+  padding-bottom: 50px;
+}
+
+.padb {
+  padding-bottom: 50px;
+}
+
+.padt {
+  padding-top: 50px;
+}
+
+.card {
+  border: 1px solid #e5e5e5;
+  padding-bottom: 30px;
+}
+
+.mybutton {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transform-origin: center;
+}
+
+.mybutton:hover {
+  transform: scale(1.03);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+}
+
+.navbar {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.filter-panel,
+.restricted-panel {
+  background: #f8f9fa;
+  border: 1px solid #e5e5e5;
+  padding: 20px;
+  border-radius: 4px;
+}
+
+.metadata-list {
+  padding-left: 0;
+  list-style: none;
+  font-size: 0.95rem;
+}
+
+.metadata-list li {
+  margin-bottom: 6px;
+}
+
+.assessment-label {
+  font-weight: 600;
+}
+
+.decision-box {
+  border-left: 5px solid #343a40;
+  background: #f8f9fa;
+  padding: 20px;
+}
+
+.discussion-note {
+  border-left: 4px solid #e5e5e5;
+  padding-left: 15px;
+  margin-bottom: 18px;
+}
+
+.login-card {
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+textarea {
+  min-height: 120px;
+}

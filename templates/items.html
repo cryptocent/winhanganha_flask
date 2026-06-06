@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% from "_badge.html" import access_badge %}
+{% block title %}Archive Items | First Nations Winhanganha Archive{% endblock %}
+{% block hero_title %}Browse Archive Items{% endblock %}
+{% block content %}
+<div class="container padt">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb bg-light">
+      <li class="breadcrumb-item"><a href="{{ url_for('home') }}">Home</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Archive</li>
+    </ol>
+  </nav>
+</div>
+
+<div class="container padtb">
+  <div class="row">
+    <div class="col-lg-8"><h2>Archive Search</h2><p>Use the filters to explore collection items by topic, format, language group and access level.</p></div>
+  </div>
+
+  <form class="filter-panel mt-3" method="get" action="{{ url_for('items') }}">
+    <div class="input-group input-group-lg">
+      <input name="search" value="{{ filters.search }}" class="form-control" type="text" placeholder="Search by title, place, language or keyword...">
+      <div class="input-group-append"><button class="btn btn-dark mybutton" type="submit">Search</button></div>
+    </div>
+
+    <div class="row mt-3">
+      <div class="col-md-3 mb-2">
+        <select name="collection" class="form-control">
+          <option value="">Collection</option>
+          {% for collection in collections %}<option value="{{ collection.name }}" {% if filters.collection == collection.name %}selected{% endif %}>{{ collection.name }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3 mb-2">
+        <select name="access_level" class="form-control">
+          <option value="">Access Level</option>
+          {% for level in access_levels %}<option value="{{ level.access_level }}" {% if filters.access_level == level.access_level %}selected{% endif %}>{{ level.access_level }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3 mb-2">
+        <select name="item_type" class="form-control">
+          <option value="">Item Type</option>
+          {% for type in item_types %}<option value="{{ type.item_type }}" {% if filters.item_type == type.item_type %}selected{% endif %}>{{ type.item_type }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3 mb-2">
+        <select name="review_status" class="form-control">
+          <option value="">Review Status</option>
+          {% for status in review_statuses %}<option value="{{ status.review_status }}" {% if filters.review_status == status.review_status %}selected{% endif %}>{{ status.review_status }}</option>{% endfor %}
+        </select>
+      </div>
+    </div>
+  </form>
+</div>
+
+<hr class="my-5">
+
+<div class="container padb">
+  <div class="d-flex justify-content-between align-items-center mb-3"><h2>Collection Items</h2></div>
+  <div class="row">
+    {% for item in items %}
+    <div class="col-lg-4 col-md-6 mb-4">
+      <div class="card h-100">
+        <img src="{{ url_for('static', filename='img/' ~ item.image_filename) }}" class="card-img-top" alt="Placeholder image for {{ item.title }}">
+        <div class="card-body">
+          <h5 class="card-title">{{ item.title }}</h5>
+          <p class="card-text">{{ item.description }}</p>
+          <ul class="metadata-list">
+            <li><strong>Collection:</strong> {{ item.collection_name }}</li>
+            <li><strong>Item type:</strong> {{ item.item_type }}</li>
+            <li><strong>Access:</strong> {{ access_badge(item.access_level) }}</li>
+            <li><strong>Review:</strong> {{ item.review_status }}</li>
+          </ul>
+          {% if item.title == 'Ceremony Reference Record' %}
+            <a href="{{ url_for('assessment') }}" class="btn btn-dark mybutton">Open assessment portal</a>
+          {% elif item.access_level == 'Private' %}
+            <a href="{{ url_for('home') }}#cultural-protocols" class="btn btn-dark mybutton">Request viewing advice</a>
+          {% else %}
+            <a href="{{ url_for('item_detail', item_id=item.item_id) }}" class="btn btn-dark mybutton">View item details</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% else %}
+      <div class="col-12"><div class="alert alert-warning">No records matched the selected filters.</div></div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="container padb">
+  <div class="alert alert-secondary" role="alert"><strong>Cultural access note:</strong> Some records may not show full details until authorised reviewers have completed cultural assessment and access approval.</div>
+</div>
+{% endblock %}

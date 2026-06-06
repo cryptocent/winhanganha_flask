@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% from "_badge.html" import access_badge %}
+{% block title %}Item Assessment Portal | First Nations Winhanganha Archive{% endblock %}
+{% block hero_title %}Item Assessment Portal{% endblock %}
+{% block content %}
+<div class="container padt">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb bg-light">
+      <li class="breadcrumb-item"><a href="{{ url_for('home') }}">Home</a></li>
+      <li class="breadcrumb-item"><a href="{{ url_for('items') }}">Archive</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Assessment Portal</li>
+    </ol>
+  </nav>
+</div>
+
+<hr class="my-5">
+
+<div class="container padb">
+  <div class="row">
+    <div class="col-lg-7">
+      <h2>Item Under Assessment</h2>
+      <p>This page represents the internal assessment workflow for authorised Elders, community representatives and archive staff.</p>
+      <div class="card">
+        <img src="{{ url_for('static', filename='img/' ~ assessment.image_filename) }}" class="card-img-top" alt="Placeholder image for item under assessment">
+        <div class="card-body">
+          <h3 class="h4 card-title">{{ assessment.title }}</h3>
+          <p class="card-text">{{ assessment.description }}</p>
+          <ul class="metadata-list">
+            <li><strong>Item ID:</strong> {{ assessment.item_code }}</li>
+            <li><strong>Collection:</strong> {{ assessment.collection_name }}</li>
+            <li><strong>Item type:</strong> {{ assessment.item_type }}</li>
+            <li><strong>Language group:</strong> {{ assessment.language_group }}</li>
+            <li><strong>Place:</strong> {{ assessment.place }}</li>
+            <li><strong>Date recorded:</strong> {{ assessment.date_recorded }}</li>
+            <li><strong>Current access:</strong> {{ access_badge(assessment.access_level) }}</li>
+            <li><strong>Current review status:</strong> {{ assessment.review_status }}</li>
+            <li><strong>Sensitivity level:</strong> <span class="badge badge-danger">{{ assessment.cultural_sensitivity }} cultural sensitivity</span></li>
+          </ul>
+          <a href="{{ url_for('item_detail', item_id=assessment.item_id) }}" class="btn btn-dark mybutton">Open public item view</a>
+          <a href="{{ url_for('items') }}" class="btn btn-outline-dark mybutton">Return to archive list</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-5">
+      <h2>Assessment Summary</h2>
+      <div class="restricted-panel">
+        <p><span class="assessment-label">Assigned reviewers:</span><br>{{ assessment.assigned_reviewers }}</p>
+        <p><span class="assessment-label">Assessment opened:</span><br>{{ assessment.opened_date }}</p>
+        <p><span class="assessment-label">Target decision date:</span><br>{{ assessment.target_decision_date }}</p>
+        <p><span class="assessment-label">Pending action:</span><br>{{ assessment.pending_action }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container padb">
+  <h2>Assessment Metadata</h2>
+  <p>Reviewers update this section to define cultural access conditions before the item is released or restricted.</p>
+  <form>
+    <div class="form-row">
+      <div class="form-group col-md-4">
+        <label for="accessDecision">Recommended access level</label>
+        <select class="form-control" id="accessDecision">
+          {% for option in ['Under Review', 'Public', 'Restricted', 'Private'] %}<option {% if option == assessment.recommended_access_level %}selected{% endif %}>{{ option }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="form-group col-md-4">
+        <label for="culturalSensitivity">Cultural sensitivity</label>
+        <select class="form-control" id="culturalSensitivity">
+          {% for option in ['High', 'Medium', 'Low', 'Not yet assessed'] %}<option {% if option == assessment.cultural_sensitivity %}selected{% endif %}>{{ option }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="form-group col-md-4">
+        <label for="approvalStatus">Approval status</label>
+        <select class="form-control" id="approvalStatus">
+          {% for option in ['Awaiting Elder review', 'Approved for public release', 'Approved with restrictions', 'Not approved for public release'] %}<option {% if option == assessment.approval_status %}selected{% endif %}>{{ option }}</option>{% endfor %}
+        </select>
+      </div>
+    </div>
+    <div class="form-group"><label for="culturalNotes">Cultural notes</label><textarea class="form-control" id="culturalNotes">{{ assessment.cultural_notes }}</textarea></div>
+    <div class="form-group"><label for="accessConditions">Access conditions</label><textarea class="form-control" id="accessConditions">{{ assessment.access_conditions }}</textarea></div>
+    <div class="form-group"><label for="publicDescription">Approved public description</label><textarea class="form-control" id="publicDescription">{{ assessment.public_description }}</textarea></div>
+    <button type="button" class="btn btn-dark mybutton">Save assessment metadata</button>
+  </form>
+</div>
+
+<hr class="my-5">
+
+<div class="container padb">
+  <div class="row">
+    <div class="col-lg-7">
+      <h2>Reviewer Discussion</h2>
+      <p>Discussion notes record the review process and support accountable access decisions.</p>
+      {% for note in notes %}
+      <div class="discussion-note">
+        <p><strong>{{ note.reviewer_name }}</strong> <span class="text-muted">{{ note.note_date }}</span></p>
+        <p>{{ note.note_text }}</p>
+      </div>
+      {% endfor %}
+      <form>
+        <div class="form-group"><label for="newDiscussionNote">Add discussion note</label><textarea class="form-control" id="newDiscussionNote" placeholder="Enter review note..."></textarea></div>
+        <button type="button" class="btn btn-dark mybutton">Add note</button>
+      </form>
+    </div>
+
+    <div class="col-lg-5">
+      <h2>Final Decision</h2>
+      <div class="decision-box">
+        <p>This decision area would be completed by the authorised review group after consultation.</p>
+        <form>
+          <div class="form-group">
+            <label for="finalDecision">Decision outcome</label>
+            <select class="form-control" id="finalDecision">
+              {% for option in ['Decision pending', 'Release publicly', 'Release with restricted access', 'Keep private', 'Return for further consultation'] %}<option {% if option == assessment.final_decision %}selected{% endif %}>{{ option }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="form-group"><label for="decisionReason">Decision reason</label><textarea class="form-control" id="decisionReason">{{ assessment.decision_reason }}</textarea></div>
+          <div class="form-group"><label for="reviewerSignature">Reviewer confirmation</label><input type="text" class="form-control" id="reviewerSignature" placeholder="Reviewer name"></div>
+          <button type="button" class="btn btn-dark mybutton">Record final decision</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container padb">
+  <div class="alert alert-secondary" role="alert"><strong>Cultural access note:</strong> Assessment information is prototype content for educational purposes. A real system would require secure login, audit records and formal community governance approval.</div>
+</div>
+{% endblock %}

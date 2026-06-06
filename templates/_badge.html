@@ -1,0 +1,7 @@
+{% macro access_badge(access_level) -%}
+  {% if access_level == 'Public' %}<span class="badge badge-success">Public</span>
+  {% elif access_level == 'Restricted' %}<span class="badge badge-danger">Restricted</span>
+  {% elif access_level == 'Under Review' %}<span class="badge badge-warning">Under Review</span>
+  {% elif access_level == 'Private' %}<span class="badge badge-secondary">Private</span>
+  {% else %}<span class="badge badge-secondary">{{ access_level }}</span>{% endif %}
+{%- endmacro %}

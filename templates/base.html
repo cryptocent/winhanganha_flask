@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}First Nations Winhanganha Archive{% endblock %}</title>
+  <meta name="description" content="A curated digital archive preserving First Nations knowledge, language, story and history.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body id="top">
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+  <a class="navbar-brand" href="{{ url_for('home') }}">First Nations Winhanganha Archive</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav ml-auto">
+      <li class="nav-item {% if request.endpoint == 'home' %}active{% endif %}"><a class="nav-link" href="{{ url_for('home') }}">Home</a></li>
+      <li class="nav-item {% if request.endpoint == 'items' %}active{% endif %}"><a class="nav-link" href="{{ url_for('items') }}">Archive</a></li>
+      <li class="nav-item"><a class="nav-link" href="#">About</a></li>
+      <li class="nav-item"><a class="nav-link" href="{{ url_for('home') }}#cultural-protocols">Cultural Notice</a></li>
+      <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>
+      <li class="nav-item {% if request.endpoint == 'assessment' %}active{% endif %}"><a class="nav-link" href="{{ url_for('assessment') }}">Assessment Portal</a></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="custom-jumbotron jumbotron-fluid">
+  <div class="container hero-content text-center">
+    <h1 class="display-3 text-white">{% block hero_title %}First Nations Winhanganha Archive{% endblock %}</h1>
+    <p class="text-light lead">Preserving and sharing First Nations knowledge, language, history and cultural heritage.</p>
+    <div class="blockquote-footer text-light">Aboriginal and Torres Strait Islander people should be aware that this website may contain images, voices and names of deceased persons.</div>
+    {% block hero_actions %}{% endblock %}
+  </div>
+</div>
+
+{% block content %}{% endblock %}
+
+<hr class="featurette-divider">
+<footer class="container padb">
+  <div class="padb">
+    First Nations Winhanganha Archive acknowledges the Traditional Owners of Country throughout Australia and acknowledges their continuing connection to land, waters and community. We pay our respects to the people, the cultures and the Elders past and present.
+  </div>
+  <div class="padb">
+    Materials in this archive remain connected to the communities, families and knowledge holders from which they come. Users must follow cultural use conditions and must not reproduce, download or share restricted materials without permission.
+  </div>
+  <p class="float-right"><a href="#top">Back to top</a></p>
+  <p>© 2026 First Nations Winhanganha Archive · <a href="#">Privacy</a> · <a href="#">Terms</a> · <a href="#">Cultural Use Policy</a> · <a href="#">Contact</a></p>
+</footer>
+
+<div class="modal fade" id="reviewerLoginModal" tabindex="-1" role="dialog" aria-labelledby="reviewerLoginModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title h4" id="reviewerLoginModalLabel">Reviewer Login</h2>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close reviewer login modal"><span aria-hidden="true">&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <p>Placeholder login area for Elders and authorised reviewers. The assessment content represents what approved users would see after login.</p>
+        <form>
+          <div class="form-group"><label for="reviewerEmail">Email address</label><input type="email" class="form-control" id="reviewerEmail" placeholder="elder.reviewer@example.org"></div>
+          <div class="form-group"><label for="reviewerPassword">Password</label><input type="password" class="form-control" id="reviewerPassword" placeholder="Password"></div>
+          <div class="form-group"><label for="reviewerRole">Reviewer role</label><select class="form-control" id="reviewerRole"><option>Elder reviewer</option><option>Community representative</option><option>Library archivist</option><option>Collection manager</option></select></div>
+          <button type="button" class="btn btn-dark mybutton">Login</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
