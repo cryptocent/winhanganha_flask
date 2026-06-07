@@ -20,6 +20,19 @@ app = Flask(__name__.split('.')[0])
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 bootstrap = Bootstrap4(app)
 
+
+## APP Execution
+
+if __name__ == "__main__":
+    host = os.environ.get('FLASK_HOST')
+    port = int(os.environ.get('FLASK_PORT'))
+    debug_val = os.getenv("FLASK_DEBUG")
+    is_debug = debug_val.lower() == "true" if debug_val else False
+    app.run(host=host, port=port, debug=is_debug, load_dotenv=True)
+
+
+## Database Access
+
 def get_db():
     if "db" not in g:
         g.db = pymysql.connect(
@@ -144,6 +157,9 @@ def verify_user_password(username, password):
         return user
 
     return None
+
+
+
 
 ## APP Routes
 
@@ -379,10 +395,3 @@ def register():
         return redirect(url_for('register'))
 
     return render_template('register.html', form=form)
-
-if __name__ == "__main__":
-    host = os.environ.get('FLASK_HOST')
-    port = int(os.environ.get('FLASK_PORT'))
-    debug_val = os.getenv("FLASK_DEBUG")
-    is_debug = debug_val.lower() == "true" if debug_val else False
-    app.run(host=host, port=port, debug=is_debug, load_dotenv=True)
