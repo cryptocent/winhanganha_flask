@@ -89,3 +89,19 @@ body {
 textarea {
   min-height: 120px;
 }
+
+.flash-area {
+  padding-top: 5px;
+  padding-bottom: 10px;
+  height: 50px;
+  max-height: 50px;
+  overflow: hidden;
+  z-index: 9999;
+}
+
+.flashes {  
+  padding-top: 5px;
+  padding-bottom: 10px;
+
+ 
+}

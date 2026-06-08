@@ -112,19 +112,19 @@
     {% block hero_actions %}{% endblock %}
   </div>
 </div>
-
+<div class="flash-area">
 {% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    <div class="container mt-3">
-      {% for category, message in messages %}
-        <div class="alert alert-{{ category }} show flashes" role="alert">
-          {{ message }}          
-        </div>
-      {% endfor %}
-    </div>
+  {% if messages %}    
+      <div class="container">
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} show flashes" role="alert">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>    
   {% endif %}
 {% endwith %}
-
+</div>
 {% block content %}{% endblock %}
 
 <hr class="featurette-divider">
