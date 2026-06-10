@@ -95,92 +95,15 @@
 
 <hr class="my-5">
 
-<div class="container padb">
-  <div class="row g-4">
-    <div class="col-lg-7">
-      <h2>Request to View This Item</h2>
-      <p>Some items require access approval before viewing. Submit the form below so library staff and community reviewers can assess the request.</p>
-
-      <form method="post" action="{{ url_for('request_access', item_id=item.item_id) }}">
-        <div class="row">
-          <div class="col-md-6 mb-3">
-            <label for="requesterName" class="form-label">Full name</label>
-            <input 
-              name="requester_name" 
-              type="text" 
-              class="form-control" 
-              id="requesterName" 
-              placeholder="Your full name" 
-              required
-            >
-          </div>
-
-          <div class="col-md-6 mb-3">
-            <label for="requesterEmail" class="form-label">Email address</label>
-            <input 
-              name="requester_email" 
-              type="email" 
-              class="form-control" 
-              id="requesterEmail" 
-              placeholder="name@example.com" 
-              required
-            >
-          </div>
-        </div>
-
-        <div class="mb-3">
-          <label for="requestPurpose" class="form-label">Purpose of request</label>
-          <select name="request_purpose" class="form-select" id="requestPurpose">
-            <option>Research</option>
-            <option>Teaching or learning</option>
-            <option>Community or family history</option>
-            <option>Library consultation</option>
-            <option>Other</option>
-          </select>
-        </div>
-
-        <div class="mb-3">
-          <label for="requestDetails" class="form-label">Request details</label>
-          <textarea 
-            name="request_details" 
-            class="form-control" 
-            id="requestDetails" 
-            placeholder="Briefly explain why you would like to view this item." 
-            required
-          ></textarea>
-        </div>
-
-        <div class="form-check mb-3">
-          <input 
-            name="agreement_confirmed" 
-            type="checkbox" 
-            class="form-check-input" 
-            id="culturalAgreement" 
-            required
-          >
-          <label class="form-check-label" for="culturalAgreement">
-            I agree to follow cultural use conditions attached to this item.
-          </label>
-        </div>
-
-        <button type="submit" class="btn btn-dark mybutton">Submit request</button>
-        <a href="{{ url_for('items') }}" class="btn btn-outline-secondary ms-2">Return to archive</a>
-      </form>
-    </div>
-
-    <div class="col-lg-5">
-      <div class="decision-box">
-        <h3 class="h5">Request Review Process</h3>
-        <ol>
-          <li>Library staff confirm request details.</li>
-          <li>Community reviewers consider cultural conditions.</li>
-          <li>Access is approved, restricted or declined.</li>
-          <li>The user is notified of the decision.</li>
-        </ol>
-      </div>
-    </div>
-  </div>
-</div>
+{% if item.access_level != 'Public' and session.get("userID") is not none %}
+    {% include "requestView_form.html" %}
+{% else %}
+  <div class="container padb">
+    <a href="{{ url_for('register') }}" class="btn btn-primary">
+            Register to request access
+    </a>   
+  </div>  
+{% endif %}
 
 <div class="container padb">
   <div class="alert alert-secondary" role="alert">

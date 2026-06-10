@@ -4,7 +4,7 @@ from flask import abort, flash, redirect, render_template, request, session, url
 from flask_login import login_required, login_user, logout_user
 
 from project import app
-from project.forms import LoginForm, MetadataForm, RegistrationForm
+from project.forms import LoginForm, MetadataForm, RegistrationForm, AccessRequestForm
 from project.models import (
     User,
     create_user,
@@ -136,9 +136,10 @@ def items():
     )
 
 
-@app.route("/item/<item_id>")
-@app.route("/item-details.html")
+@app.route("/item/<item_id>", methods=["GET", "POST"])
+@app.route("/item-details.html", methods=["GET", "POST"])
 def item_detail(item_id: str = "I001"):
+    form = AccessRequestForm(request.form)
     item = fetch_item(item_id)
     if item is None:
         abort(404)
@@ -152,7 +153,32 @@ def item_detail(item_id: str = "I001"):
         """,
         (item_id,),
     )
-    return render_template("item_detail.html", item=item, requirements=requirements)
+
+    if request.method == "POST" and form.validate():
+        request_id = next_id("AccessRequest", "requestID", "Q")
+        purpose = request.form.get("purpose", "").strip()
+        details = request.form.get("details", "").strip()
+        full_purpose = purpose if not details else f"{purpose}: {details}"
+
+        execute(
+            """
+            INSERT INTO AccessRequest
+            (requestID, itemID, userID, requestDate, requestStatus, purpose)
+            VALUES (%s, %s, %s, %s, %s, %s)
+            """,
+            (
+                request_id,
+                item_id,
+                session.get("userID"),
+                date.today().isoformat(),
+                "Pending",
+                full_purpose,
+            ),
+        ) 
+        
+        flash("Your request has been received. You will be notified of the request outcome", "success")
+
+    return render_template("item_detail.html", item=item, requirements=requirements, form=form)
 
 
 @app.route("/request-access/<item_id>", methods=["POST"])
@@ -161,21 +187,20 @@ def request_access(item_id: str):
         abort(404)
 
     request_id = next_id("AccessRequest", "requestID", "Q")
-    purpose = request.form.get("request_purpose", "").strip()
-    details = request.form.get("request_details", "").strip()
+    purpose = request.form.get("purpose", "").strip()
+    details = request.form.get("details", "").strip()
     full_purpose = purpose if not details else f"{purpose}: {details}"
 
     execute(
         """
         INSERT INTO AccessRequest
-        (requestID, itemID, requesterName, requesterEmail, requestDate, requestStatus, purpose)
-        VALUES (%s, %s, %s, %s, %s, %s, %s)
+        (requestID, itemID, userID, requestDate, requestStatus, purpose)
+        VALUES (%s, %s, %s, %s, %s, %s)
         """,
         (
             request_id,
             item_id,
-            request.form.get("requester_name", "").strip(),
-            request.form.get("requester_email", "").strip(),
+            session.get("userID"),
             date.today().isoformat(),
             "Pending",
             full_purpose,
