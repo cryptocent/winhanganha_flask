@@ -34,7 +34,7 @@ Setup
    mysql -u root -p < project/winhanganha_archive.sql
 
 5. Run the app:
-   python run.py
+   python3 run.py
 
 Notes
 -----
