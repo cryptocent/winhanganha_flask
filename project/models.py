@@ -54,7 +54,7 @@ class Role:
             },
             "Reviewer": {
                 "permissions": Permision.PUBLIC | Permision.USER | Permision.ARCHIVIST | Permision.REVIEWER,
-                "tasks": "Can view, edit and review items"
+                "tasks": "Can view, edit, review, approve access requests and change access levels"
             },
             "Administrator": {
                 "permissions": (
