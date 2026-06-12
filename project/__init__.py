@@ -14,7 +14,7 @@ app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 
 app.config["MYSQL_HOST"] = os.getenv("MYSQL_HOST")
-app.config["MYSQL_PORT"] = int(os.getenv("MYSQL_PORT"))
+app.config["MYSQL_PORT"] = int(os.getenv("MYSQL_PORT", 3306))
 app.config["MYSQL_USER"] = os.getenv("MYSQL_USER")
 app.config["MYSQL_PASSWORD"] = os.getenv("MYSQL_PASSWORD")
 app.config["MYSQL_DB"] = os.getenv("MYSQL_DATABASE")
@@ -29,4 +29,10 @@ login_manager.init_app(app)
 login_manager.login_view = "login"
 login_manager.login_message_category = "warning"
 
+
+from project import models
 from project import views
+
+
+with app.app_context():
+    models.Role.insert_roles()

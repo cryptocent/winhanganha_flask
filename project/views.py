@@ -32,7 +32,6 @@ def internal_error(e):
 
 
 @app.route("/")
-@app.route("/index.html")
 def home():
     featured_items = rows(
         """
@@ -61,7 +60,6 @@ def home():
 
 
 @app.route("/items")
-@app.route("/items.html")
 def items():
     search = request.args.get("search", "").strip()
     collection = request.args.get("collection", "").strip()
@@ -139,7 +137,6 @@ def items():
 
 
 @app.route("/item/<item_id>", methods=["GET", "POST"])
-@app.route("/item-details.html", methods=["GET", "POST"])
 def item_detail(item_id: str = "I001"):
     form = AccessRequestForm(request.form)
     item = fetch_item(item_id)
@@ -193,7 +190,6 @@ def item_detail(item_id: str = "I001"):
     return render_template("item_detail.html", item=item, requirements=requirements, form=form, access_request=request_row)
 
 @app.route("/item-assessment")
-@app.route("/item-assessment.html")
 def assessment():
     assessment_row = row(
         """

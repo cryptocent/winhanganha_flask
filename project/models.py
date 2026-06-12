@@ -14,6 +14,118 @@ class User(UserMixin):
     # def get_id(self):
     #     return str(self.id)
 
+class Permision:
+        PUBLIC = 1
+        USER = 2
+        ARCHIVIST = 4
+        REVIEWER = 8        
+        ADMINISTRATOR = 16
+        
+class Role:
+    def __init__(self, name, permissions=0):
+        self.name = name
+        self.permissions = permissions
+
+    def add_permission(self, perm):
+        if not self.has_permission(perm):
+            self.permissions += perm
+
+    def remove_permission(self, perm):
+        if self.has_permission(perm):
+            self.permissions -= perm
+
+    def has_permission(self, perm):
+        return (self.permissions & perm) == perm
+
+    @staticmethod
+    def insert_roles():
+        roles = {
+            "Public": {
+                "permissions": Permision.PUBLIC,
+                "tasks": "Can view public items"
+            },
+            "User": {
+                "permissions": Permision.PUBLIC | Permision.USER,
+                "tasks": "Can view public items and request access to restricted items"
+            },
+            "Archivist": {
+                "permissions": Permision.PUBLIC | Permision.USER | Permision.ARCHIVIST,
+                "tasks": "Can view and edit archive items"
+            },
+            "Reviewer": {
+                "permissions": Permision.PUBLIC | Permision.USER | Permision.ARCHIVIST | Permision.REVIEWER,
+                "tasks": "Can view, edit and review items"
+            },
+            "Administrator": {
+                "permissions": (
+                    Permision.PUBLIC
+                    | Permision.USER
+                    | Permision.ARCHIVIST
+                    | Permision.REVIEWER
+                    | Permision.ADMINISTRATOR
+                ),
+                "tasks": "Can manage all aspects of the system"
+            }
+        }
+
+        for role_name, role_data in roles.items():
+            role = fetch_role_by_name(role_name)
+
+            if role is None:
+                role_id = next_id("Roles", "roleID", "R")
+
+                execute(
+                    """
+                    INSERT INTO Roles
+                        (roleID, name, permissions, tasks)
+                    VALUES
+                        (%s, %s, %s, %s)
+                    """,
+                    (
+                        role_id,
+                        role_name,
+                        role_data["permissions"],
+                        role_data["tasks"]
+                    )
+                )
+            else:
+                execute(
+                    """
+                    UPDATE Roles
+                    SET permissions = %s,
+                        tasks = %s
+                    WHERE name = %s
+                    """,
+                    (
+                        role_data["permissions"],
+                        role_data["tasks"],
+                        role_name
+                    )
+                )
+        
+        
+# Role definitions
+# Public: Can view public items (permission 1)
+# User: Can view public items and request access to restricted items (permissions 1 + 2 = 3)
+# Archivist: Can view and edit all items can not approve access requests or change access levels (permissions 1 + 2 + 4 = 7)
+# Reviewer: Can view and review items (permissions 1 + 2 + 8 = 11)
+# Administrator: Can manage all aspects of the system (permissions 1 + 2 + 4 + 8 + 16 = 31)
+def fetch_role_by_name(role_name):
+    result = rows(
+        """
+        SELECT *
+        FROM Roles
+        WHERE name = %s
+        LIMIT 1
+        """,
+        (role_name,)
+    )
+
+    if result:
+        return result[0]
+
+    return None
+
 def rows(sql, params=None):
     cur = mysql.connection.cursor()
     try:
