@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jun 10, 2026 at 07:01 AM
--- Server version: 5.6.20-log
--- PHP Version: 8.3.13
+-- Generation Time: Jun 12, 2026 at 12:36 PM
+-- Server version: 5.7.11
+-- PHP Version: 8.3.3
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -47,7 +47,8 @@ INSERT INTO `accessrequest` (`requestID`, `itemID`, `userID`, `requestDate`, `re
 ('Q004', 'I001', '', '2026-06-10', 'Pending', ''),
 ('Q005', 'I001', '', '2026-06-10', 'Pending', ''),
 ('Q006', 'I001', '', '2026-06-10', 'Pending', ''),
-('Q007', 'I001', '', '2026-06-10', 'Pending', '');
+('Q007', 'I001', '', '2026-06-10', 'Pending', ''),
+('Q008', 'I001', 'U005', '2026-06-12', 'Pending', 'Lore: research my history');
 
 -- --------------------------------------------------------
 
@@ -236,6 +237,30 @@ INSERT INTO `reviewer` (`reviewerID`, `userID`, `role`, `authorisationStatus`) V
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `roles`
+--
+
+CREATE TABLE `roles` (
+  `roleID` varchar(12) NOT NULL,
+  `name` varchar(50) NOT NULL,
+  `permissions` int(2) NOT NULL,
+  `tasks` varchar(256) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `roles`
+--
+
+INSERT INTO `roles` (`roleID`, `name`, `permissions`, `tasks`) VALUES
+('R001', 'Public', 1, 'Can view public items'),
+('R002', 'User', 3, 'Can view public items and request access to restricted items'),
+('R003', 'Archivist', 7, 'Can view and edit archive items'),
+('R004', 'Reviewer', 15, 'Can view, edit, review, approve access requests and change access levels'),
+('R005', 'Administrator', 31, 'Can manage all aspects of the system');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `users`
 --
 
@@ -324,6 +349,14 @@ ALTER TABLE `culturalmetadata`
 ALTER TABLE `reviewer`
   ADD PRIMARY KEY (`reviewerID`),
   ADD KEY `userID_idx` (`userID`);
+
+--
+-- Indexes for table `roles`
+--
+ALTER TABLE `roles`
+  ADD PRIMARY KEY (`roleID`),
+  ADD UNIQUE KEY `roleID` (`roleID`),
+  ADD UNIQUE KEY `name` (`name`);
 
 --
 -- Indexes for table `users`
