@@ -17,7 +17,7 @@ Setup
 1. Create and activate a virtual environment.
 
 2. Install dependencies:
-   pip install Flask Flask-Login Flask-WTF Flask-MySQLdb bootstrap-flask python-dotenv email-validator
+   python3 -m pip install -r requirements.txt
 
 3. Create a .env file beside run.py:
    SECRET_KEY=replace_with_a_long_random_secret
@@ -31,11 +31,11 @@ Setup
    FLASK_DEBUG=true
 
 4. Create the database:
-   mysql -u root -p < project/database.sql
+   mysql -u root -p < project/winhanganha_archive.sql
 
 5. Run the app:
-   python run.py
+   python3 run.py
 
 Notes
 -----
-The seeded reviewer user in database.sql has a placeholder password hash. Register a new user through the site, or replace the seeded passwordHash with a real Werkzeug generated hash before testing login for that account.
+
