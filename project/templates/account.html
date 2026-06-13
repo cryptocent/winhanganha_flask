@@ -2,7 +2,7 @@
 {% from "_helpers.html" import render_field, request_badge, access_badge %}
 
 {% block title %}Account | First Nations Winhanganha Archive{% endblock %}
-{% block hero_title %}Welcome {{ session.name }}{% endblock %}
+{% block hero_title %}Welcome {{ current_user.preferred_title }} {{ current_user.name }}{% endblock %}
 
 {% block content %}
 <div class="container padb">
@@ -10,7 +10,7 @@
   <div class="row g-4">
     <div class="col-lg-8">
       <h2>Your Account</h2>
-      <p>Welcome to your account, {{ session.name }}.</p>
+      <p>Welcome to your account, {{ current_user.preferred_title }} {{ current_user.name }}.</p>
       <p>Here you can view your account details and manage your access requests.</p>
 
       <div class="card mb-4">
@@ -21,20 +21,21 @@
         <div class="card-body">
           <ul class="list-group list-group-flush">
             <li class="list-group-item">
-              <strong>Name:</strong> {{ session.name }}
+              <strong>Name:</strong>  {{ current_user.preferred_title }} {{ current_user.name }}
             </li>
 
             <li class="list-group-item">
-              <strong>Email:</strong> {{ session.email }}
+              <strong>Email:</strong> {{ current_user.email }}
             </li>
 
             <li class="list-group-item">
-              <strong>Role:</strong> {{ session.role | default('Registered user') }}
+              <strong>User Role:</strong> {{ current_user.role.name }} ({{ current_user.role.tasks }})
             </li>
-
+{#
             <li class="list-group-item">
-              <strong>Authorisation Status:</strong> {{ session.authorisationStatus | default('Pending review') }}
-            </li>
+              <strong>Authorisation Status:</strong> {{ current_user.authorisationStatus | default('Pending review') }}
+            </li> 
+#}
           </ul>
         </div>
       </div>

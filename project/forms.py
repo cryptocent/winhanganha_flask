@@ -5,7 +5,20 @@ from wtforms.validators import Length, DataRequired, Email, EqualTo
 
 
 class RegistrationForm(Form):
-    name = StringField("Name", [Length(min=4, max=25)])
+    preferred_title = SelectField(
+        "Preferred Title",
+        choices=[
+            ("", "Select a title"),
+            ("Uncle", "Uncle"),
+            ("Aunty", "Aunty"),
+            ("Dr.", "Dr"),
+            ("Mr", "Mr"),
+            ("Mrs", "Mrs"),
+            ("Ms", "Ms"),
+            ("-", "Prefer not to say"),
+        ]
+    )
+    name = StringField("Full Name", [Length(min=4, max=25)])
     email = StringField("Email Address", [Length(min=6, max=100)])
     password = PasswordField(
         "New Password",
@@ -15,7 +28,6 @@ class RegistrationForm(Form):
         ],
     )
     confirm = PasswordField("Repeat Password")
-    accept_tos = BooleanField("I accept the TOS", [DataRequired()])
 
 
 class MetadataForm(Form):

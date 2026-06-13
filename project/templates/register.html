@@ -13,9 +13,11 @@
 
       <form method="post">
         <div class="mb-3">
+          {{ render_field(form.preferred_title) }}
+        </div>
+        <div class="mb-3">
           {{ render_field(form.name) }}
         </div>
-
         <div class="mb-3">
           {{ render_field(form.email) }}
         </div>
@@ -26,10 +28,6 @@
 
         <div class="mb-3">
           {{ render_field(form.confirm) }}
-        </div>
-
-        <div class="form-check mb-3">
-          {{ render_field(form.accept_tos) }}
         </div>
 
         <button type="submit" class="btn btn-dark mybutton">

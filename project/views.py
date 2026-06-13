@@ -266,11 +266,25 @@ def register():
     form = RegistrationForm(request.form)
 
     if request.method == "POST" and form.validate():
-        create_user(form.name.data, form.email.data, form.password.data)
+        create_user(form.preferred_title.data, form.name.data, form.email.data, form.password.data)
         flash("Thanks for registering. You can now log in.", "success")
         return redirect(url_for("login"))
 
     return render_template("register.html", form=form)
+
+# def create_user(preferred_title, name, email, password):
+#     password_hash = generate_password_hash(password)
+#     user_id = next_id("Users", "userID", "U")
+#     execute(
+#         """
+#         INSERT INTO Users
+#         (userID, role, preferred_title, name, email, passwordHash)
+#         VALUES (%s, %s, %s, %s, %s, %s)
+#         """,
+#         (user_id, "1", preferred_title, name, email, password_hash),
+#     )
+#     return user_id
+
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -283,10 +297,19 @@ def login():
         user_row = verify_user_password(email, password)
 
         if user_row:
-            user = User(user_row["userID"], user_row["name"], user_row["email"])
+            user = User(user_row["userID"], user_row["role"], user_row["preferred_title"], user_row["name"], user_row["email"])
             login_user(user)
-
+# #class User(UserMixin):
+#     def __init__(self, userID, role, preferred_title, name, email):
+#         self.id = str(userID)
+#         self.userID = userID
+#         self.role = role
+#         self.preferred_title = preferred_title
+#         self.name = name
+#         self.email = email
             session["userID"] = user_row["userID"]
+            session["role"] = user_row["role"]
+            session["preferred_title"] = user_row["preferred_title"]
             session["name"] = user_row["name"]
             session["email"] = user_row["email"]
 

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jun 12, 2026 at 12:36 PM
+-- Generation Time: Jun 13, 2026 at 12:17 PM
 -- Server version: 5.7.11
 -- PHP Version: 8.3.3
 
@@ -48,7 +48,8 @@ INSERT INTO `accessrequest` (`requestID`, `itemID`, `userID`, `requestDate`, `re
 ('Q005', 'I001', '', '2026-06-10', 'Pending', ''),
 ('Q006', 'I001', '', '2026-06-10', 'Pending', ''),
 ('Q007', 'I001', '', '2026-06-10', 'Pending', ''),
-('Q008', 'I001', 'U005', '2026-06-12', 'Pending', 'Lore: research my history');
+('Q008', 'I001', 'U005', '2026-06-12', 'Pending', 'Lore: research my history'),
+('Q009', 'I002', 'U005', '2026-06-13', 'Pending', 'Research: test');
 
 -- --------------------------------------------------------
 
@@ -266,6 +267,8 @@ INSERT INTO `roles` (`roleID`, `name`, `permissions`, `tasks`) VALUES
 
 CREATE TABLE `users` (
   `userID` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `role` varchar(2) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '1',
+  `preferred_title` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `name` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `email` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `passwordHash` varchar(5000) COLLATE utf8mb4_unicode_ci DEFAULT NULL
@@ -275,13 +278,13 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`userID`, `name`, `email`, `passwordHash`) VALUES
-('U001', 'Aunty May Williams', 'may.williams@fnwa.org', NULL),
-('U002', 'Daniel Brooks', 'd.brooks@fnwa.org', NULL),
-('U003', 'Leah Morgan', 'leah.morgan@fnwa.org', NULL),
-('U004', 'Uncle Robert Evans', 'robert.evans@fnwa.org', NULL),
-('U005', 'Wayne Stack', 'wayne@technetik.com.au', 'scrypt:32768:8:1$mU0g8vWcA2a9aQbZ$1700240d81081e5c7b20b04067aa2ef6e2bc514a0fcfc67b0e377a968ddc834800986fdd63b612a53a14b77833b35f54588ca84f616f6fb3a2f27a2d2d9dd86d'),
-('U006', 'Wayne Stack', 'wayne@technetikfrgtrt.com.au', 'scrypt:32768:8:1$VMg2SphAoHRKwY8b$464c115c5b95633fbfd353dab54cd236c067be281c1054a2d3fe0c2152b8f672d3dd33fc9436f26cdf5034cecf622d235027d9fc6c60029e4b819e2097b36b40');
+INSERT INTO `users` (`userID`, `role`, `preferred_title`, `name`, `email`, `passwordHash`) VALUES
+('U001', '1', 'Aunty', 'May Williams', 'may.williams@fnwa.org', NULL),
+('U002', '1', NULL, 'Daniel Brooks', 'd.brooks@fnwa.org', NULL),
+('U003', '1', NULL, 'Leah Morgan', 'leah.morgan@fnwa.org', NULL),
+('U004', '1', 'Uncle', 'Robert Evans', 'robert.evans@fnwa.org', NULL),
+('U005', '31', NULL, 'Wayne Stack', 'wayne@technetik.com.au', 'scrypt:32768:8:1$mU0g8vWcA2a9aQbZ$1700240d81081e5c7b20b04067aa2ef6e2bc514a0fcfc67b0e377a968ddc834800986fdd63b612a53a14b77833b35f54588ca84f616f6fb3a2f27a2d2d9dd86d'),
+('U006', '1', 'Uncle', 'Theodore Stack', 'here@there.com.au', 'scrypt:32768:8:1$4DXOjKGuBMImvRms$5dfa73e698985df9d4b972b66b88281c4e4a4ea960aa701c65490a45d480c6cd8dd486570dccf68880911679733b6719d8b6d1cddc811f593492d42a494d1e2f');
 
 --
 -- Indexes for dumped tables

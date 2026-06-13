@@ -5,9 +5,11 @@ from project import login_manager, mysql
 
 
 class User(UserMixin):
-    def __init__(self, userID, name, email):
+    def __init__(self, userID, role, preferred_title, name, email):
         self.id = str(userID)
         self.userID = userID
+        self.role = role
+        self.preferred_title = preferred_title
         self.name = name
         self.email = email
 
@@ -105,20 +107,37 @@ class Role:
 # Reviewer: Can view and review items (permissions 1 + 2 + 8 = 11)
 # Administrator: Can manage all aspects of the system (permissions 1 + 2 + 4 + 8 + 16 = 31)
 def fetch_role_by_name(role_name):
-    result = rows(
+    result = row(
         """
         SELECT *
         FROM Roles
         WHERE name = %s
-        LIMIT 1
         """,
         (role_name,)
     )
 
     if result:
-        return result[0]
+        return result
 
     return None
+
+def fetch_role_by_permission(permissions):
+    result = row(
+        """
+        SELECT *
+        FROM Roles
+        WHERE permissions = %s
+        """,
+        (permissions,)
+    )
+    
+    if result:
+        return result
+
+    return None
+
+
+
 
 def rows(sql, params=None):
     cur = mysql.connection.cursor()
@@ -242,16 +261,16 @@ def fetch_user_request(user_id, item_id):
         (user_id,item_id,),
     )
 
-def create_user(name, email, password):
+def create_user(preferred_title, name, email, password):
     password_hash = generate_password_hash(password)
     user_id = next_id("Users", "userID", "U")
     execute(
         """
         INSERT INTO Users
-        (userID, name, email, passwordHash)
-        VALUES (%s, %s, %s, %s)
+        (userID, role, preferred_title, name, email, passwordHash)
+        VALUES (%s, %s, %s, %s, %s, %s)
         """,
-        (user_id, name, email, password_hash),
+        (user_id, "1", preferred_title, name, email, password_hash),
     )
     return user_id
 
@@ -259,7 +278,7 @@ def create_user(name, email, password):
 def get_user_by_email(email):
     return row(
         """
-        SELECT userID, name, email, passwordHash
+        SELECT userID, role, preferred_title, name, email, passwordHash
         FROM Users
         WHERE email = %s
         """,
@@ -270,7 +289,7 @@ def get_user_by_email(email):
 def get_user_by_id(userID):
     return row(
         """
-        SELECT userID, name, email
+        SELECT userID, role, preferred_title, name, email, passwordHash
         FROM Users
         WHERE userID = %s
         """,
@@ -303,11 +322,19 @@ def verify_user_password(email, password):
     return None
 
 
+# class User(UserMixin):
+#     def __init__(self, userID, role, preferred_title, name, email):
+
 @login_manager.user_loader
 def load_user(user_id):
     user = get_user_by_id(user_id)
 
     if user is None:
         return None
-
-    return User(user["userID"], user["name"], user["email"])
+    
+    permission = fetch_role_by_permission(user["role"])
+    
+    if user["preferred_title"] is None:
+        user["preferred_title"] = ""
+        
+    return User(user["userID"], permission, user["preferred_title"], user["name"], user["email"])
