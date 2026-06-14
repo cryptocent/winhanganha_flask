@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jun 13, 2026 at 12:17 PM
+-- Generation Time: Jun 14, 2026 at 04:47 AM
 -- Server version: 5.7.11
 -- PHP Version: 8.3.3
 
@@ -267,7 +267,7 @@ INSERT INTO `roles` (`roleID`, `name`, `permissions`, `tasks`) VALUES
 
 CREATE TABLE `users` (
   `userID` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `role` varchar(2) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '1',
+  `permissions` varchar(2) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '1',
   `preferred_title` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `name` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `email` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -278,13 +278,13 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`userID`, `role`, `preferred_title`, `name`, `email`, `passwordHash`) VALUES
-('U001', '1', 'Aunty', 'May Williams', 'may.williams@fnwa.org', NULL),
+INSERT INTO `users` (`userID`, `permissions`, `preferred_title`, `name`, `email`, `passwordHash`) VALUES
+('U001', '15', 'Aunty', 'May Williams', 'may.williams@fnwa.org', NULL),
 ('U002', '1', NULL, 'Daniel Brooks', 'd.brooks@fnwa.org', NULL),
-('U003', '1', NULL, 'Leah Morgan', 'leah.morgan@fnwa.org', NULL),
-('U004', '1', 'Uncle', 'Robert Evans', 'robert.evans@fnwa.org', NULL),
+('U003', '7', NULL, 'Leah Morgan', 'leah.morgan@fnwa.org', NULL),
+('U004', '15', 'Uncle', 'Robert Evans', 'robert.evans@fnwa.org', NULL),
 ('U005', '31', NULL, 'Wayne Stack', 'wayne@technetik.com.au', 'scrypt:32768:8:1$mU0g8vWcA2a9aQbZ$1700240d81081e5c7b20b04067aa2ef6e2bc514a0fcfc67b0e377a968ddc834800986fdd63b612a53a14b77833b35f54588ca84f616f6fb3a2f27a2d2d9dd86d'),
-('U006', '1', 'Uncle', 'Theodore Stack', 'here@there.com.au', 'scrypt:32768:8:1$4DXOjKGuBMImvRms$5dfa73e698985df9d4b972b66b88281c4e4a4ea960aa701c65490a45d480c6cd8dd486570dccf68880911679733b6719d8b6d1cddc811f593492d42a494d1e2f');
+('U006', '15', 'Uncle', 'Theodore Stack', 'here@there.com.au', 'scrypt:32768:8:1$4DXOjKGuBMImvRms$5dfa73e698985df9d4b972b66b88281c4e4a4ea960aa701c65490a45d480c6cd8dd486570dccf68880911679733b6719d8b6d1cddc811f593492d42a494d1e2f');
 
 --
 -- Indexes for dumped tables
@@ -359,7 +359,8 @@ ALTER TABLE `reviewer`
 ALTER TABLE `roles`
   ADD PRIMARY KEY (`roleID`),
   ADD UNIQUE KEY `roleID` (`roleID`),
-  ADD UNIQUE KEY `name` (`name`);
+  ADD UNIQUE KEY `name` (`name`),
+  ADD KEY `permissions` (`permissions`);
 
 --
 -- Indexes for table `users`
