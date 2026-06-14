@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jun 14, 2026 at 04:47 AM
+-- Generation Time: Jun 14, 2026 at 12:05 PM
 -- Server version: 5.7.11
 -- PHP Version: 8.3.3
 
@@ -162,6 +162,7 @@ CREATE TABLE `collectionitem` (
   `description` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `itemType` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   `imagePath` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'img/placeholder.png',
+  `recordPath` varchar(256) COLLATE utf8mb4_unicode_ci NOT NULL,
   `place` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `languageGroup` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `status` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -174,13 +175,13 @@ CREATE TABLE `collectionitem` (
 -- Dumping data for table `collectionitem`
 --
 
-INSERT INTO `collectionitem` (`itemID`, `collectionID`, `title`, `description`, `itemType`, `imagePath`, `place`, `languageGroup`, `status`, `format`, `dateAdded`, `dateRecorded`) VALUES
-('I001', 'C001', 'Wiradjuri Language Word List', 'Sample language resource with cultural notes', 'Language Record', 'img/placeholder.png', 'Central NSW', 'Wiradjuri', 'Awaiting Review', 'Digitised text record', '2026-05-20', NULL),
-('I002', 'C002', 'Community Oral History Recording', 'Recorded interview about family memory and place', 'Audio', 'img/placeholder.png', 'Northern NSW', 'Bundjalung', 'Restricted', 'Audio recording', '2026-05-21', NULL),
-('I003', 'C003', 'Mission Station Photograph', 'Digitised historical photograph with provenance notes', 'Image', 'img/placeholder.png', 'Queensland', 'Multiple communities', 'Approved', 'Digitised image', '2026-05-21', NULL),
-('I004', 'C002', 'Ceremony Reference Record', 'A culturally sensitive record held for assessment before any public description or access decision is made.', 'Audio transcript and cultural note', 'img/placeholder.png', 'Central West New South Wales', 'Wiradjuri', 'Under Review', 'Audio transcript and cultural note', NULL, '1985'),
-('I005', 'C003', 'Community Meeting Notes', 'Digitised notes from a community consultation meeting about cultural care, access conditions and description.', 'Document', 'img/placeholder.png', NULL, NULL, 'Private', 'Digitised document', '2026-05-22', NULL),
-('I006', 'C001', 'Place Name Record', 'A record connecting language, Country, place names and approved cultural description.', 'Place Record', 'img/placeholder.png', NULL, NULL, 'Restricted', 'Text record', '2026-05-22', NULL);
+INSERT INTO `collectionitem` (`itemID`, `collectionID`, `title`, `description`, `itemType`, `imagePath`, `recordPath`, `place`, `languageGroup`, `status`, `format`, `dateAdded`, `dateRecorded`) VALUES
+('I001', 'C001', 'Wiradjuri Language Word List', 'Sample language resource with cultural notes', 'Language Record', 'img/placeholder.png', '', 'Central NSW', 'Wiradjuri', 'Under Assessment', 'Digitised text record', '2026-05-20', NULL),
+('I002', 'C002', 'Community Oral History Recording', 'Recorded interview about family memory and place', 'Audio', 'img/placeholder.png', '', 'Northern NSW', 'Bundjalung', 'Restricted', 'Audio recording', '2026-05-21', NULL),
+('I003', 'C003', 'Mission Station Photograph', 'Digitised historical photograph with provenance notes', 'Image', 'img/placeholder.png', '', 'Queensland', 'Multiple communities', 'Approved', 'Digitised image', '2026-05-21', NULL),
+('I004', 'C002', 'Ceremony Reference Record', 'A culturally sensitive record held for assessment before any public description or access decision is made.', 'Audio transcript and cultural note', 'img/placeholder.png', '', 'Central West New South Wales', 'Wiradjuri', 'Under Assessment', 'Audio transcript and cultural note', NULL, '1985'),
+('I005', 'C003', 'Community Meeting Notes', 'Digitised notes from a community consultation meeting about cultural care, access conditions and description.', 'Document', 'img/placeholder.png', '', NULL, NULL, 'Private', 'Digitised document', '2026-05-22', NULL),
+('I006', 'C001', 'Place Name Record', 'A record connecting language, Country, place names and approved cultural description.', 'Place Record', 'img/placeholder.png', '', NULL, NULL, 'Restricted', 'Text record', '2026-05-22', NULL);
 
 -- --------------------------------------------------------
 
@@ -284,7 +285,8 @@ INSERT INTO `users` (`userID`, `permissions`, `preferred_title`, `name`, `email`
 ('U003', '7', NULL, 'Leah Morgan', 'leah.morgan@fnwa.org', NULL),
 ('U004', '15', 'Uncle', 'Robert Evans', 'robert.evans@fnwa.org', NULL),
 ('U005', '31', NULL, 'Wayne Stack', 'wayne@technetik.com.au', 'scrypt:32768:8:1$mU0g8vWcA2a9aQbZ$1700240d81081e5c7b20b04067aa2ef6e2bc514a0fcfc67b0e377a968ddc834800986fdd63b612a53a14b77833b35f54588ca84f616f6fb3a2f27a2d2d9dd86d'),
-('U006', '15', 'Uncle', 'Theodore Stack', 'here@there.com.au', 'scrypt:32768:8:1$4DXOjKGuBMImvRms$5dfa73e698985df9d4b972b66b88281c4e4a4ea960aa701c65490a45d480c6cd8dd486570dccf68880911679733b6719d8b6d1cddc811f593492d42a494d1e2f');
+('U006', '15', 'Uncle', 'Theodore Stack', 'here@there.com.au', 'scrypt:32768:8:1$4DXOjKGuBMImvRms$5dfa73e698985df9d4b972b66b88281c4e4a4ea960aa701c65490a45d480c6cd8dd486570dccf68880911679733b6719d8b6d1cddc811f593492d42a494d1e2f'),
+('U007', '31', 'Dr.', 'Charles Montgomery Stack', 'there@here.com', 'scrypt:32768:8:1$qqzgQJfLkRKfts7l$943096b5e0b361359c00c3570c67cc9ea4157e750ce30c420d9e1a25897bc369901c956fac1b5af54176a117ca9acb6863eab24a245a731a5d52ccd121e6da5b');
 
 --
 -- Indexes for dumped tables
