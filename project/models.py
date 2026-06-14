@@ -40,8 +40,8 @@ class Role:
         return (self.permissions & perm) == perm
 
     @staticmethod
-    def insert_roles():
-        roles = {
+    def all_roles():
+        return {
             "Public": {
                 "permissions": Permission.PUBLIC,
                 "tasks": "Can view public items"
@@ -62,7 +62,29 @@ class Role:
                 "permissions": Permission.PUBLIC | Permission.USER | Permission.ARCHIVIST | Permission.REVIEWER | Permission.ADMINISTRATOR,
                 "tasks": "Can manage all aspects of the system"
             }
-        }
+        }  
+    
+    @staticmethod
+    def update_user_role(user_id, new_role_name):
+        roles = Role.all_roles()
+        if new_role_name not in roles:
+            raise ValueError("Invalid role value")
+        
+        new_permissions = roles[new_role_name]["permissions"]
+                
+        execute(
+            """
+            UPDATE Users
+            SET role = %s
+            WHERE userID = %s
+            """,
+            (new_permissions, user_id)
+        )
+        
+    @staticmethod
+    def insert_roles():
+        
+        roles = Role.all_roles()
 
         for role_name, role_data in roles.items():
             role = fetch_role_by_name(role_name)
