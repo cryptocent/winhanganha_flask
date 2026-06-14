@@ -1,5 +1,6 @@
 from calendar import c
 from datetime import date
+from tkinter import CURRENT
 
 from flask import abort, flash, redirect, render_template, request, session, url_for
 from flask_login import login_required, login_user, logout_user, current_user
@@ -407,7 +408,7 @@ def dashboard():
         return redirect(url_for("dashboard"))
     
     
-    request_users = load_users()
+    request_users = load_users(current_user.userID)
     all_roles = fetch_all_roles()
     return render_template("admin.html", users=request_users, roles=all_roles)
 
@@ -476,3 +477,4 @@ def add_item():
 
 
     return render_template("item_add.html", collections=collections,form=form)
+#

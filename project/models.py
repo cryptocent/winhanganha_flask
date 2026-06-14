@@ -379,7 +379,7 @@ def load_user(user_id):
 # lass User(UserMixin):
 #     def __init__(self, userID, permissions, preferred_title, name, email):
 
-def load_users():
+def load_users(userID = ''):
     users = rows(
         """
         SELECT 
@@ -390,8 +390,9 @@ def load_users():
             u.email
         FROM Users u
         JOIN Roles r ON u.permissions = r.permissions
-        
-        """
+        WHERE userID != %s
+        """,
+        (userID,),
     )
     return users
 

@@ -2,3 +2,4 @@ project/__pycache__
 venv
 .venv
 instance
+.vs
