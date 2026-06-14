@@ -2,7 +2,7 @@
 {% from "_helpers.html" import render_field, request_badge, access_badge %}
 
 {% block title %}Account | First Nations Winhanganha Archive{% endblock %}
-{% block hero_title %}Welcome {{ current_user.preferred_title }} {{ current_user.name }}{% endblock %}
+{% block hero_title %}Welcome {{ '' if current_user.preferred_title in ["None","none",""] else current_user.preferred_title }} {{ current_user.name }}{% endblock %}
 
 {% block content %}
 <div class="container padb">
@@ -10,7 +10,7 @@
   <div class="row g-4">
     <div class="col-lg-8">
       <h2>Your Account</h2>
-      <p>Welcome to your account, {{ current_user.preferred_title }} {{ current_user.name }}.</p>
+      <p>Welcome to your account, {{ '' if current_user.preferred_title in ["None","none",""] else current_user.preferred_title }} {{ current_user.name }}.</p>
       <p>Here you can view your account details and manage your access requests.</p>
 
       <div class="card mb-4">
@@ -21,7 +21,7 @@
         <div class="card-body">
           <ul class="list-group list-group-flush">
             <li class="list-group-item">
-              <strong>Name:</strong>  {{ current_user.preferred_title }} {{ current_user.name }}
+              <strong>Name:</strong>  {{ '' if current_user.preferred_title in ["None","none",""] else current_user.preferred_title  }} {{ current_user.name }}
             </li>
 
             <li class="list-group-item">
@@ -51,6 +51,11 @@
               Admin Dashboard
             </a>
           {% endif %}
+          {% if current_user.is_authenticated and current_user.can(Permission.ARCHIVIST) %}
+            <a href="{{ url_for('add_item') }}" class="btn btn-dark mybutton me-2">
+              Add Item to Collection
+            </a>
+          {% endif %} 
     </div>
   </div>
 

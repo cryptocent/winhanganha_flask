@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+{% from "_helpers.html" import access_badge %}
+
+{% block title %}Item Assessment Portal | First Nations Winhanganha Archive{% endblock %}
+{% block hero_title %}Item Assessment Portal{% endblock %}
+
+{% block content %}
+<div class="container">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb bg-light p-3 rounded">
+      <li class="breadcrumb-item">
+        <a href="{{ url_for('home') }}">Home</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{{ url_for('items') }}">Archive</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">Assessment Portal</li>
+    </ol>
+  </nav>
+</div>
+
+<hr class="my-5">
+
+<div class="container padb">
+  <div class="row g-4">
+    <div class="col-lg-7">
+      <h2>Item Under Assessment</h2>
+      <p>This page represents the internal assessment workflow for authorised Elders, community representatives and archive staff.</p>
+
+      <div class="card">
+        <img 
+          src="{{ url_for('static', filename='img/' ~ assessment.image_filename) }}" 
+          class="card-img-top" 
+          alt="Placeholder image for item under assessment"
+        >
+
+        <div class="card-body">
+          <h3 class="h4 card-title">{{ assessment.title }}</h3>
+          <p class="card-text">{{ assessment.description }}</p>
+
+          <ul class="metadata-list">
+            <li><strong>Item ID:</strong> {{ assessment.item_id }}</li>
+            <li><strong>Collection:</strong> {{ assessment.collection_name }}</li>
+            <li><strong>Item type:</strong> {{ assessment.item_type }}</li>
+            <li><strong>Language group:</strong> {{ assessment.language_group }}</li>
+            <li><strong>Place:</strong> {{ assessment.place }}</li>
+            <li><strong>Date recorded:</strong> {{ assessment.date_recorded }}</li>
+            <li><strong>Current access:</strong> {{ access_badge(assessment.access_level) }}</li>
+            <li><strong>Current review status:</strong> {{ assessment.review_status }}</li>
+            <li>
+              <strong>Sensitivity level:</strong>
+              <span class="badge bg-danger">{{ assessment.cultural_sensitivity }} cultural sensitivity</span>
+            </li>
+          </ul>
+
+          <a href="{{ url_for('item_detail', item_id=assessment.item_id) }}" class="btn btn-dark mybutton me-2 mt-2">
+            Open public item view
+          </a>
+          <a href="{{ url_for('items') }}" class="btn btn-outline-dark mybutton mt-2">
+            Return to archive list
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-5">
+      <h2>Assessment Summary</h2>
+
+      <div class="restricted-panel">
+        <p>
+          <span class="assessment-label">Assigned reviewers:</span><br>
+          {{ assessment.assigned_reviewers }}
+        </p>
+        <p>
+          <span class="assessment-label">Assessment opened:</span><br>
+          {{ assessment.opened_date }}
+        </p>
+        <p>
+          <span class="assessment-label">Target decision date:</span><br>
+          {{ assessment.target_decision_date }}
+        </p>
+        <p>
+          <span class="assessment-label">Pending action:</span><br>
+          {{ assessment.pending_action }}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% include "metadata_form.html" %}
+
+<hr class="my-5">
+
+<div class="container padb">
+  <div class="row g-4">
+    <div class="col-lg-7">
+      <h2>Reviewer Discussion</h2>
+      <p>Discussion notes record the review process and support accountable access decisions.</p>
+
+      {% for note in notes %}
+      <div class="discussion-note">
+        <p>
+          <strong>{{ note.reviewer_name }}</strong>
+          <span class="text-muted">{{ note.note_date }}</span>
+        </p>
+        <p>{{ note.note_text }}</p>
+      </div>
+      {% endfor %}
+
+      <form>
+        <div class="mb-3">
+          <label for="newDiscussionNote" class="form-label">Add discussion note</label>
+          <textarea 
+            class="form-control" 
+            id="newDiscussionNote" 
+            placeholder="Enter review note..."
+          ></textarea>
+        </div>
+
+        <button type="button" class="btn btn-dark mybutton addDiscussionNote">
+          Add note
+        </button>
+      </form>
+    </div>
+
+    <div class="col-lg-5">
+      <h2>Final Decision</h2>
+
+      <div class="decision-box">
+        <p>This decision area would be completed by the authorised review group after consultation.</p>
+
+        <form>
+          <div class="mb-3">
+            <label for="finalDecision" class="form-label">Decision outcome</label>
+            <select class="form-select" id="finalDecision">
+              {% for option in ['Decision pending', 'Release publicly', 'Release with restricted access', 'Keep private', 'Return for further consultation'] %}
+                <option {% if option == assessment.final_decision %}selected{% endif %}>
+                  {{ option }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="decisionReason" class="form-label">Decision reason</label>
+            <textarea class="form-control" id="decisionReason">{{ assessment.decision_reason }}</textarea>
+          </div>
+
+          <div class="mb-3">
+            <label for="reviewerSignature" class="form-label">Reviewer confirmation</label>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="reviewerSignature" 
+              placeholder="Reviewer name"
+            >
+          </div>
+
+          <button type="button" class="btn btn-dark mybutton">
+            Record final decision
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container padb">
+  <div class="alert alert-secondary" role="alert">
+    <strong>Cultural access note:</strong>
+    Assessment information is prototype content for educational purposes. A real system would require secure login, audit records and formal community governance approval.
+  </div>
+</div>
+{% endblock %}

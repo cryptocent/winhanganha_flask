@@ -2,7 +2,7 @@
 {% from "_helpers.html" import render_field, request_badge, access_badge %}
 
 {% block title %}Admin Dashboard | First Nations Winhanganha Archive{% endblock %}
-{% block hero_title %}Admin Dashboard - {{ current_user.preferred_title }} {{ current_user.name }}{% endblock %}
+{% block hero_title %}Admin Dashboard - {{ '' if current_user.preferred_title in [None, 'None', ''] else current_user.preferred_title }} {{ current_user.name }}{% endblock %}
 
 {% block content %}
 <div class="container padb">

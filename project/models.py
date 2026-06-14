@@ -1,7 +1,7 @@
 from flask_login import UserMixin
 from werkzeug.security import check_password_hash, generate_password_hash
-
-from project import login_manager, mysql
+from werkzeug.utils import secure_filename
+from project import ALLOWED_EXTENSIONS, ALLOWED_IMG_EXTENSIONS, login_manager, mysql
 
 class Permission:
         PUBLIC = 1
@@ -18,7 +18,7 @@ class User(UserMixin):
         self.userID = userID
         self.role = permissions
         self.permissions = permissions["permissions"]
-        self.preferred_title = preferred_title
+        self.preferred_title = preferred_title or ""
         self.name = name
         self.email = email
 
@@ -82,7 +82,7 @@ class Role:
         execute(
             """
             UPDATE Users
-            SET role = %s
+            SET permissions = %s
             WHERE userID = %s
             """,
             (new_permissions, user_id)
@@ -276,6 +276,7 @@ def fetch_user_requests(user_id):
         """,
         (user_id,),
     )
+    
 def fetch_user_request(user_id, item_id):
     return row(
         """
@@ -299,13 +300,15 @@ def fetch_user_request(user_id, item_id):
         (user_id,item_id,),
     )
 
+
+
 def create_user(preferred_title, name, email, password):
     password_hash = generate_password_hash(password)
     user_id = next_id("Users", "userID", "U")
     execute(
         """
         INSERT INTO Users
-        (userID, role, preferred_title, name, email, passwordHash)
+        (userID, permissions, preferred_title, name, email, passwordHash)
         VALUES (%s, %s, %s, %s, %s, %s)
         """,
         (user_id, "1", preferred_title, name, email, password_hash),
@@ -371,10 +374,10 @@ def load_user(user_id):
         return None
     
     permission = fetch_role_by_permission(user["permissions"])
-               
-    return User(user["userID"], permission, user["preferred_title"], user["name"], user["email"])
-
-
+               #user["preferred_title"]
+    return  User(user["userID"], permission, user["preferred_title"], user["name"], user["email"])
+# lass User(UserMixin):
+#     def __init__(self, userID, permissions, preferred_title, name, email):
 
 def load_users():
     users = rows(
@@ -386,8 +389,12 @@ def load_users():
             u.name, 
             u.email
         FROM Users u
-        JOIN Roles r ON u.role = r.permissions
+        JOIN Roles r ON u.permissions = r.permissions
         
         """
     )
     return users
+
+def allowed_file(filename, allowed_extensions=ALLOWED_EXTENSIONS):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in allowed_extensions

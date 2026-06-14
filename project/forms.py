@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import Form, StringField, PasswordField, SubmitField, TextAreaField, SelectField, BooleanField 
+from wtforms import Form, StringField, PasswordField, SubmitField, TextAreaField, SelectField, BooleanField, FileField 
 from wtforms.validators import Length, DataRequired, Email, EqualTo
 
 
@@ -58,7 +58,43 @@ class AccessRequestForm(Form):
 
     details = TextAreaField("Request details", [DataRequired()])
     submit = SubmitField("Submit Request")
+
+        # title = request.form.get("title")
+        # description = request.form.get("description")
+        # item_type = request.form.get("item_type")
+        # place = request.form.get("place")
+        # language_group = request.form.get("language_group")
+        # collection_id = request.form.get("collection_id")
+        # file_record = request.files.get("file_record")
+        # collection_img = request.files.get("collection_img")
+
+class AddItemForm(Form):
+    collection_id = SelectField(
+        "Parent Collection",
+        [DataRequired()],
+        choices=[]
+    )
+    title = StringField("Title", [DataRequired()])
+    description = TextAreaField("Description", [DataRequired()])
+    item_type = SelectField(
+        "Item Type",
+        [DataRequired()],
+        choices=[
+            ("", "Select an item type"),
+            ("Audio", "Audio"),
+            ("Video", "Video"),
+            ("Image", "Image"),
+            ("Document", "Document"),
+            ("Other", "Other"),
+        ]
+    )
+    place = StringField("Place")
+    language_group = TextAreaField("Language Group/Nation")
+    file_record = FileField("Item File", [DataRequired()])
+    item_img = FileField("Collection Item Image")
     
+    
+
 # class AdminPermissionForm(Form):
 #     permission = SelectField(
 #         "Role",
