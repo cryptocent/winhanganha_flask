@@ -52,7 +52,7 @@
     <div class="col-lg-4 col-md-6">
       <div class="card h-100">
         <img 
-          src="{{ url_for('static', filename='img/' ~ item.image_filename) }}" 
+          src="{{ url_for('static', filename=item.image_filename) }}" 
           class="card-img-top" 
           alt="Placeholder image for {{ item.title }}"
         >
