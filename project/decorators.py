@@ -21,3 +21,4 @@ def permission_required(permission):
 
 def is_administrator(func):
     return permission_required(Permission.ADMINISTRATOR)(func)
+###
