@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jun 16, 2026 at 08:13 AM
+-- Generation Time: Jun 16, 2026 at 12:48 PM
 -- Server version: 5.7.11
 -- PHP Version: 8.3.3
 
@@ -51,7 +51,8 @@ INSERT INTO `accessrequest` (`requestID`, `itemID`, `userID`, `requestDate`, `re
 ('Q008', 'I001', 'U005', '2026-06-12', 'Cancel', 'Lore: research my history'),
 ('Q009', 'I002', 'U005', '2026-06-13', 'Cancel', 'Research: test'),
 ('Q010', 'I002', 'U005', '2026-06-15', 'Cancel', 'Lore: test'),
-('Q011', 'I006', 'U005', '2026-06-15', 'Cancel', 'Research: qwerty');
+('Q011', 'I006', 'U005', '2026-06-15', 'Cancel', 'Research: qwerty'),
+('Q012', 'I001', 'U006', '2026-06-16', 'Approved', 'Lore: request');
 
 -- --------------------------------------------------------
 
@@ -135,8 +136,8 @@ INSERT INTO `collectionitem` (`itemID`, `collectionID`, `title`, `description`, 
 ('I004', 'C002', 'Ceremony Reference Record', 'A culturally sensitive record held for assessment before any public description or access decision is made.', 'Audio transcript and cultural note', 'img/placeholder.png', '', 'Central West New South Wales', 'Wiradjuri', 'Private', 'Audio transcript and cultural note', NULL, '1985'),
 ('I005', 'C003', 'Community Meeting Notes', 'Digitised notes from a community consultation meeting about cultural care, access conditions and description.', 'Document', 'img/placeholder.png', '', NULL, NULL, 'Private', 'Digitised document', '2026-05-22', NULL),
 ('I006', 'C001', 'Place Name Record', 'A record connecting language, Country, place names and approved cultural description.', 'Place Record', 'img/placeholder.png', '', NULL, NULL, 'Restricted', 'Text record', '2026-05-22', NULL),
-('I008', 'C003', 'Test Title', 'qwert', 'Image', 'uploads/fd78c1865ed44b4eb4ecf2d208045c21.png', 'uploads/0d7a838dc0e647899042448f1af8dad4.pdf', 'asdfgh', 'zxscdvfgbhngdfbvdfs', 'Approved', NULL, '2026-06-15', NULL),
-('I009', 'C001', 'qwerty', 'poiuytrewqasdfghjkl sdfghnjghbgfd', 'Document', 'uploads/2fe5caab19e445a2b52942f6159ccfe9.jpg', 'uploads/46da7636c6cf49ab875a2cf87ada2209.pdf', 'home', 'qwertyuioooooolk,mnbvcvfgtytgfds', 'Under Assessment', 'PDF document', '2026-06-15', NULL),
+('I008', 'C003', 'Test Title', 'item description ', 'Image', 'uploads/fd78c1865ed44b4eb4ecf2d208045c21.png', 'uploads/0d7a838dc0e647899042448f1af8dad4.pdf', 'at their place', 'Barngarla', 'Remove', NULL, '2026-06-15', NULL),
+('I009', 'C001', 'qwerty', 'poiuytrewqasdfghjkl sdfghnjghbgfd', 'Document', 'uploads/2fe5caab19e445a2b52942f6159ccfe9.jpg', 'uploads/46da7636c6cf49ab875a2cf87ada2209.pdf', 'home', 'Anindilyakwa', 'Approved', 'PDF document', '2026-06-15', NULL),
 ('I010', 'C001', 'Limestone cave art', 'Ngamadjidj Shelter', 'Document', 'uploads/9c4f607cb2d04e25aa56826ef56a1e14.png', 'uploads/8edcb291c5f44a82825fae2f237a9658.docx', 'Wartook Valley', 'Ngambri', 'Approved', 'Word document', '2026-06-16', '1967-06-21');
 
 -- --------------------------------------------------------
@@ -169,8 +170,8 @@ INSERT INTO `culturalmetadata` (`metadataID`, `itemID`, `itemHandling`, `ownersh
 ('M004', 'I004', 'public description', 'Family owned', 'Restricted', NULL, 'High', 'Item may contain references to restricted knowledge. ', 'test', 'Awaiting Elder review'),
 ('M005', 'I005', NULL, 'Community consultation record', 'Private', NULL, 'High', 'Contains internal consultation material and community decision-making context. Not available for public release.', '', 'Not approved for public release'),
 ('M006', 'I006', NULL, 'Community held', 'Restricted', NULL, 'Medium', 'Contains place-based knowledge and language information. Access to detailed place data requires approval.', '', 'Approved with restrictions'),
-('M007', 'I008', '', 'Community owned', 'Public', NULL, 'Low', '', '', 'Approved'),
-('M008', 'I009', '', '', '', NULL, '', '', '', NULL),
+('M007', 'I008', 'are there handling details', 'Community owned', 'Public', NULL, 'Low', 'cultural notes go here', 'access conditions go here', 'Approved'),
+('M008', 'I009', '', 'Individual owned', 'Public', NULL, 'Low', '', '', 'Approved'),
 ('M009', 'I010', 'can be viewed by the public', 'Community owned', 'Public', NULL, 'Low', 'parallel and overlapping sets of sinuous finger marks are usually found on the cave ceiling, towards the back of the cave\r\nthe art is often about 3 metres in length\r\nscratched motifs of emu tracks, V shapes, lines, ovals and barred ovals are usually found on the walls or ceiling near the cave mouth\r\nmost of these artworks are less than 200 millimetres in length\r\nthe cave floor may contain stone artefacts and traces of charcoal', 'source: https://www.firstpeoplesrelations.vic.gov.au/fact-sheet-aboriginal-rock-art', 'Approved');
 
 -- --------------------------------------------------------
@@ -218,7 +219,7 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`userID`, `permissions`, `preferred_title`, `name`, `email`, `passwordHash`) VALUES
 ('U001', '15', 'Aunty', 'May Williams', 'may.williams@fnwa.org', NULL),
-('U002', '1', NULL, 'Daniel Brooks', 'd.brooks@fnwa.org', NULL),
+('U002', '3', NULL, 'Daniel Brooks', 'd.brooks@fnwa.org', NULL),
 ('U003', '7', NULL, 'Leah Morgan', 'leah.morgan@fnwa.org', NULL),
 ('U004', '15', 'Uncle', 'Robert Evans', 'robert.evans@fnwa.org', NULL),
 ('U005', '31', NULL, 'Wayne Stack', 'wayne@technetik.com.au', 'scrypt:32768:8:1$mU0g8vWcA2a9aQbZ$1700240d81081e5c7b20b04067aa2ef6e2bc514a0fcfc67b0e377a968ddc834800986fdd63b612a53a14b77833b35f54588ca84f616f6fb3a2f27a2d2d9dd86d'),

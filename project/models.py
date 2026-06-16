@@ -250,7 +250,7 @@ def fetch_collections():
     )
 
 
-def fetch_item(item_id: str):
+def fetch_item(item_id):
     return row(
         """
         SELECT ci.itemID AS item_id,
@@ -277,12 +277,12 @@ def fetch_item(item_id: str):
         FROM CollectionItem ci
         JOIN Collection c ON c.collectionID = ci.collectionID
         JOIN CulturalMetadata cm ON cm.itemID = ci.itemID
-        WHERE ci.itemID = %s
+        WHERE ci.itemID = %s AND ci.status != 'Remove'
         """,
         (item_id,),
     )
 
-def fetch_item_status(item_id: str):
+def fetch_item_status(item_id):
     return row(
         """
         SELECT 
@@ -310,7 +310,7 @@ def fetch_user_requests(user_id):
         JOIN collectionitem ci ON ar.itemID = ci.itemID
         WHERE
             userID = %s
-            AND requestStatus != 'Cancel'
+            AND requestStatus != 'Cancel' AND ci.status != 'Remove'
         ORDER BY requestDate
         """,
         (user_id,),
@@ -334,7 +334,7 @@ def fetch_user_request(user_id, item_id):
         WHERE
             ar.userID = %s
             AND ar.itemID = %s
-            AND requestStatus != 'Cancel'
+            AND requestStatus != 'Cancel' AND ci.status != 'Remove'
         """,
         (user_id,item_id,),
     )
@@ -397,17 +397,17 @@ def get_user_by_id(userID):
     )
 
 
-def get_user_reviewer(userID):
-    return row(
-        """
-        SELECT reviewerID,
-               authorisationStatus,
-               role
-        FROM Reviewer
-        WHERE userID = %s
-        """,
-        (userID,),
-    )
+# def get_user_reviewer(userID):
+#     return row(
+#         """
+#         SELECT reviewerID,
+#                authorisationStatus,
+#                role
+#         FROM Reviewer
+#         WHERE userID = %s
+#         """,
+#         (userID,),
+#     )
 
 
 def verify_user_password(email, password):
@@ -608,7 +608,7 @@ def submit_access_request(request_array):
     
     request_array["request_id"] = next_id("accessrequest", "requestID", "Q")
     
-    execute(
+    request_insert = execute(
             """
             INSERT INTO accessrequest
             (requestID, itemID, userID, requestDate, requestStatus, purpose)
@@ -623,6 +623,8 @@ def submit_access_request(request_array):
                 request_array["full_purpose"],
             ),
         ) 
+    return request_insert == 1
+
 
 def fetch_filtered_items(filters):
     sql = """
@@ -641,7 +643,7 @@ def fetch_filtered_items(filters):
         FROM CollectionItem ci
         JOIN Collection c ON c.collectionID = ci.collectionID
         JOIN CulturalMetadata cm ON cm.itemID = ci.itemID
-        WHERE ci.status != 'Under Assessment'
+        WHERE ci.status != 'Under Assessment' AND ci.status != 'Remove'
     """
 
     params = []
@@ -714,7 +716,7 @@ def fetch_review_status_filters():
     return rows(
         """
         SELECT DISTINCT communityApprovalStatus AS review_status
-        FROM CulturalMetadata
+        FROM culturalmetadata
         WHERE communityApprovalStatus IS NOT NULL
           AND communityApprovalStatus != ''
         ORDER BY communityApprovalStatus
@@ -759,7 +761,9 @@ def update_meta_data(form, item_id):
         SET 
             status = %s,
             title = %s,
-            description = %s
+            description = %s,
+            place = %s,
+            languageGroup = %s
         WHERE 
             itemID = %s
         """,
@@ -767,6 +771,8 @@ def update_meta_data(form, item_id):
             form.approval_status.data,
             form.title.data,
             form.description.data,
+            form.place.data,
+            form.language_group.data,
             item_id
         ),        
     )

@@ -13,21 +13,18 @@ from project.decorators import permission_required, is_administrator
 from project.forms import LoginForm, MetadataForm, RegistrationForm, AccessRequestForm, AddItemForm, CancelUserRequest, CommentForm
 from project.models import (
     Permission,
-    Role,
     User,
     add_new_item,
     add_item_comment,
     allowed_file,
     cancel_user_request,
     create_user,
-    execute,
     fetch_access_level_filters,
     fetch_all_roles,
     fetch_collections,
     fetch_item_comments,
     fetch_filtered_items,
     fetch_item,
-    fetch_item_status,    
     fetch_item_type_filters,
     update_meta_data,
     fetch_review_status_filters,
@@ -37,12 +34,7 @@ from project.models import (
     fetch_user_requests,
     get_assessment_rows,
     get_featured_items,
-    get_item_metadata,
-    get_user_reviewer,
     load_users,
-    next_id,
-    row,
-    rows,
     secure_filename,
     submit_access_request,
     update_user_permissions,
@@ -128,6 +120,7 @@ def item_detail(item_id):
         request_array["full_purpose"] = purpose if not details else f"{purpose}: {details}"
         request_array["current_user"] = current_user.userID
         request_array["request_date"] = date.today().isoformat()
+        request_array["item_id"] = item_id
 
         success = submit_access_request(request_array)
         
@@ -170,6 +163,10 @@ def assessment_item(item_id):
 
             if assessment_form.validate():
                 update_meta_data(assessment_form, item_id)
+                if request.form.get("status") == "Remove":
+                    flash("Item Removed from Archive.", "success")
+                    return redirect(url_for("items"))
+                flash("Item Data Updated.", "success")
                 return redirect(url_for("assessment_item", item_id=item_id))
 
         elif form_name == "comment_form":
@@ -182,7 +179,7 @@ def assessment_item(item_id):
                     user=current_user.userID,
                     date_added = date.today().strftime("%Y-%m-%d")
                 )
-
+            flash("Comment added.", "success")
             return redirect(url_for("assessment_item", item_id=item_id))
 
     assessment_form = MetadataForm(data={
@@ -195,6 +192,10 @@ def assessment_item(item_id):
         "access_conditions": assessment_row["access_conditions"],
         "ownership": assessment_row["ownership"],
         "item_handling": assessment_row["item_handling"],
+        "language_group": assessment_row["language_group"],
+        "place": assessment_row["place"],
+        "record_format": assessment_row["format"],
+        "item_type": assessment_row["item_type"],
     })
 
     comments = fetch_item_comments(item_id)
@@ -241,12 +242,6 @@ def login():
             session["preferred_title"] = user_row["preferred_title"]
             session["name"] = user_row["name"]
             session["email"] = user_row["email"]
-
-            reviewer_info = get_user_reviewer(user_row["userID"])
-            if reviewer_info:
-                session["authorisationStatus"] = reviewer_info["authorisationStatus"]
-                session["role"] = reviewer_info["role"]
-                session["reviewerID"] = reviewer_info["reviewerID"]
 
             flash("Logged in successfully", "success")
             return redirect(url_for("account"))
@@ -302,7 +297,7 @@ def dashboard():
         user_id = request.form.get("userID")
         role_id =  request.form.get("role")
         new_role = fetch_role_by_permission(role_id)
-        update_user_permissions(new_role["permissions"], user_id)
+        update_user_permissions(user_id,new_role["permissions"])
         flash("User role updated successfully.", "success")
         return redirect(url_for("dashboard"))
     

@@ -45,24 +45,41 @@
     </div>
 </div> -->
 
-{% macro render_field(field) %}
+{% macro render_field(field, custom_class="") %}
+
   {% if field.type == "SubmitField" %}
-    {{ field(class="form-control mybutton") }}
 
-  {% else %}
-  {{ field.label(class="form-label") }}
+    {{ field(class=("form-control mybutton " ~ custom_class)|trim) }}
 
-  {% if field.type == "BooleanField" %}
-    {{ field(class="form-check-input") }}
-  {% else %}
-    {{ field(class="form-control") }}
-  {% endif %}
-  {% endif %}
-  {% if field.errors %}
-    <div class="text-danger small mt-1">
-      {% for error in field.errors %}
-        <div>{{ error }}</div>
-      {% endfor %}
+  {% elif field.type == "BooleanField" %}
+
+    <div class="form-check mb-3">
+      {{ field(class=("form-check-input " ~ custom_class)|trim) }}
+      {{ field.label(class="form-check-label") }}
     </div>
+
+  {% else %}
+
+    <div class="mb-3">
+      {{ field.label(class="form-label") }}
+
+      {% if field.type == "SelectField" %}
+        {{ field(class=("form-select " ~ custom_class)|trim) }}
+      {% elif field.type == "TextAreaField" %}
+        {{ field(class=("form-control " ~ custom_class)|trim, rows="4") }}
+      {% else %}
+        {{ field(class=("form-control " ~ custom_class)|trim) }}
+      {% endif %}
+
+      {% if field.errors %}
+        <div class="text-danger small mt-1">
+          {% for error in field.errors %}
+            <div>{{ error }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
   {% endif %}
+
 {% endmacro %}
