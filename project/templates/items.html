@@ -125,7 +125,7 @@
           {% if can_view_description %}
             {% if item.description %}
               <p class="card-text">
-                {{ item.description | truncate(50, True, '...', 0) }}
+                {{ item.description | truncate(100, False, '...', 0) }}
               </p>
             {% else %}
               <p class="card-text text-muted">
