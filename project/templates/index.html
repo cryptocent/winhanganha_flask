@@ -59,7 +59,7 @@
 
         <div class="card-body">
           <h5 class="card-title">{{ item.title }}</h5>
-          <p class="card-text">{{ item.description }}</p>
+          <p class="card-text">{{ item.description | truncate(50, True, '...', 0) }}</p>
 
           <ul class="metadata-list">
             <li><strong>Collection:</strong> {{ item.collection_name }}</li>
