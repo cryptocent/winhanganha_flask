@@ -82,6 +82,11 @@
 
         {% if current_user.can(Permission.ARCHIVIST) %}
           <li>
+            <a class="dropdown-item" href="{{ url_for('add_collection') }}">
+              Add a Collection
+            </a>
+          </li>        
+          <li>
             <a class="dropdown-item" href="{{ url_for('add_item') }}">
               Add Item to Collection
             </a>

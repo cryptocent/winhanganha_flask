@@ -250,6 +250,20 @@ def fetch_collections():
     )
 
 
+def add_collections(name,description):
+    collection_id = next_id("collection","collectionID", "C")
+    add_collection = execute(
+        """
+        INSERT INTO collection
+        (collectionID,collectionName,description)
+        VALUES
+        (%s,%s,%s)   
+        """,(collection_id,name,description),
+    )
+    
+    return add_collection == 1
+
+
 def fetch_item(item_id):
     return row(
         """
@@ -584,7 +598,7 @@ def get_featured_items():
         JOIN Collection c ON c.collectionID = ci.collectionID
         JOIN CulturalMetadata cm ON cm.itemID = ci.itemID
         WHERE cm.accessLevel = 'Public'
-          AND cm.communityApprovalStatus = 'Approved'
+          AND cm.communityApprovalStatus = 'Approved' AND ci.status != 'Remove'
         ORDER BY ci.itemID
         LIMIT 3
         """

@@ -10,10 +10,11 @@ from uuid import uuid4
 from werkzeug.utils import secure_filename
 from project import ALLOWED_EXTENSIONS, ALLOWED_IMG_EXTENSIONS, app
 from project.decorators import permission_required, is_administrator
-from project.forms import LoginForm, MetadataForm, RegistrationForm, AccessRequestForm, AddItemForm, CancelUserRequest, CommentForm
+from project.forms import LoginForm, MetadataForm, RegistrationForm, AccessRequestForm, AddItemForm, CancelUserRequest, CommentForm, AddCollectionForm
 from project.models import (
     Permission,
     User,
+    add_collections,
     add_new_item,
     add_item_comment,
     allowed_file,
@@ -307,6 +308,28 @@ def dashboard():
     return render_template("admin.html", users=request_users, roles=all_roles)
 
 
+
+@app.route("/add-collection", methods=["GET","POST"])
+@login_required
+@permission_required(Permission.ARCHIVIST)
+def add_collection():
+    form = AddCollectionForm(request.form)
+    collections = fetch_collections()
+    
+    if request.method == "POST":
+        success = add_collections(request.form.get("collection_name"), request.form.get("collection_description"))    
+        
+        if success:
+            flash("Collection added successfully.", "success")
+            return redirect(url_for("add_collection"))
+        
+        flash("Collection could not be added.", "danger")
+        return redirect(url_for("add_collection"))
+        
+    return render_template("collection_add.html", collections=collections, form=form)    
+        
+        
+        
 
 @app.route("/add-item", methods=["GET", "POST"])
 @login_required
