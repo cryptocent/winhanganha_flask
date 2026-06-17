@@ -93,12 +93,19 @@
           </li>
         {% endif %}
 
+
+    
         {% if current_user.can(Permission.REVIEWER) %}
           <li>
             <a class="dropdown-item" href="{{ url_for('assessments') }}">
               Assessment Portal
             </a>
           </li>
+                  <li>
+            <a class="dropdown-item" href="{{ url_for('access_requests') }}">
+              Access Request Portal
+            </a>
+          </li>  
         {% endif %}
 
       </ul>

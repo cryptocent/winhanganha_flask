@@ -1,0 +1,360 @@
+{% extends "base.html" %}
+{% from "_helpers.html" import access_badge %}
+
+{% block title %}Access Request Portal | First Nations Winhanganha Archive{% endblock %}
+{% block hero_title %}Access Request Portal{% endblock %}
+
+{% block content %}
+
+<div class="container">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb bg-light p-3 rounded">
+      <li class="breadcrumb-item">
+        <a href="{{ url_for('home') }}">Home</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{{ url_for('account') }}">Account</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        Access Request Portal
+      </li>
+    </ol>
+  </nav>
+</div>
+
+<hr class="my-5">
+
+<div class="container padb">
+  <div class="row">
+    <div class="col-12">
+
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+        <div>
+          <h2 class="mb-1">Current Access Requests</h2>
+          <p class="text-muted mb-0">
+            Review user access requests and approve or reject access based on the request purpose, user role and item status.
+          </p>
+        </div>
+      </div>
+
+      {% if requests %}
+        <div class="table-responsive">
+          <table class="table table-striped table-hover align-middle assessment-table-small">
+            <thead class="table-dark">
+              <tr>
+                <th>Request</th>
+                <th>Requester</th>
+                <th>Item</th>
+                <th>Format</th>
+                <th>Request Date</th>
+                <th>Status</th>
+                <th>Purpose</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {% for request in requests %}
+                <tr>
+                  <td>
+                    <strong>{{ request.requestID }}</strong><br>
+                    <small class="text-muted">Item ID: {{ request.itemID }}</small>
+                  </td>
+
+                  <td>
+                    <strong>
+                      {% if request.preferred_title and request.preferred_title not in ["None", "none", ""] %}
+                        {{ request.preferred_title }}
+                      {% endif %}
+                      {{ request.user_name }}
+                    </strong><br>
+
+                    {% if request.role %}
+                      <span class="badge bg-secondary">
+                        {{ request.role }}
+                      </span>
+                    {% else %}
+                      <span class="badge bg-light text-dark">
+                        No role assigned
+                      </span>
+                    {% endif %}
+                  </td>
+
+                  <td>
+                    <strong>{{ request.title }}</strong><br>
+                    <small class="text-muted">
+                      Item status: {{ request.status }}
+                    </small>
+                  </td>
+
+                  <td>
+                    {% if request.format %}
+                      <span class="badge bg-secondary">
+                        {{ request.format }}
+                      </span>
+                    {% else %}
+                      <span class="badge bg-light text-dark">
+                        Not recorded
+                      </span>
+                    {% endif %}
+                  </td>
+
+                  <td>
+                    {{ request.requestDate }}
+                  </td>
+
+                  <td>
+                    {% if request.requestStatus == "Approved" %}
+                      <span class="badge bg-success">Approved</span>
+                    {% elif request.requestStatus == "Rejected" %}
+                      <span class="badge bg-danger">Rejected</span>
+                    {% elif request.requestStatus == "Pending" %}
+                      <span class="badge bg-warning text-dark">Pending</span>
+                    {% else %}
+                      <span class="badge bg-secondary">
+                        {{ request.requestStatus }}
+                      </span>
+                    {% endif %}
+                  </td>
+
+                  <td>
+                    {% if request.purpose %}
+                      {{ request.purpose[:100] }}
+                      {% if request.purpose|length > 100 %}...{% endif %}
+                    {% else %}
+                      <span class="text-muted">No purpose provided.</span>
+                    {% endif %}
+                  </td>
+                <td>
+                  <div class="d-flex flex-column gap-1">
+
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-dark mybutton"
+                      data-bs-toggle="modal"
+                      data-bs-target="#requestModal{{ request.requestID }}"
+                    >
+                      Review
+                    </button>
+
+                    {% if request.requestStatus != "Approved" %}
+                      <form method="post" class="d-inline">
+                        <input type="hidden" name="request_id" value="{{ request.requestID }}">
+                        <input type="hidden" name="decision" value="Approved">
+
+                        <button
+                          type="submit"
+                          class="btn btn-sm btn-success w-100"
+                          onclick="return confirm('Approve this access request?');"
+                        >
+                          Approve
+                        </button>
+                      </form>
+                    {% endif %}
+
+                    {% if request.requestStatus != "Rejected" %}
+                      <form method="post" class="d-inline">
+                        <input type="hidden" name="request_id" value="{{ request.requestID }}">
+                        <input type="hidden" name="decision" value="Rejected">
+
+                        <button
+                          type="submit"
+                          class="btn btn-sm btn-danger w-100"
+                          onclick="return confirm('Reject this access request?');"
+                        >
+                          Reject
+                        </button>
+                      </form>
+                    {% endif %}
+
+                    {% if request.requestStatus == "Approved" %}
+                      <form method="post" class="d-inline">
+                        <input type="hidden" name="request_id" value="{{ request.requestID }}">
+                        <input type="hidden" name="decision" value="Pending">
+
+                        <button
+                          type="submit"
+                          class="btn btn-sm btn-warning text-dark w-100"
+                          onclick="return confirm('Revoke this approval and return it to pending?');"
+                        >
+                          Revoke
+                        </button>
+                      </form>
+                    {% endif %}
+
+                  </div>
+                </td>
+
+                </tr>
+
+                <div
+                  class="modal fade"
+                  id="requestModal{{ request.requestID }}"
+                  tabindex="-1"
+                  aria-labelledby="requestModalLabel{{ request.requestID }}"
+                  aria-hidden="true"
+                >
+                  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                    <div class="modal-content">
+
+                      <div class="modal-header">
+                        <h5
+                          class="modal-title"
+                          id="requestModalLabel{{ request.requestID }}"
+                        >
+                          Access Request: {{ request.title }}
+                        </h5>
+
+                        <button
+                          type="button"
+                          class="btn-close"
+                          data-bs-dismiss="modal"
+                          aria-label="Close"
+                        ></button>
+                      </div>
+
+                      <div class="modal-body">
+
+                        <div class="row g-4">
+                          <div class="col-md-6">
+                            <h6>Request Details</h6>
+                            <ul class="metadata-list">
+                              <li><strong>Request ID:</strong> {{ request.requestID }}</li>
+                              <li><strong>Request date:</strong> {{ request.requestDate }}</li>
+                              <li><strong>Request status:</strong> {{ request.requestStatus }}</li>
+                            </ul>
+                          </div>
+
+                          <div class="col-md-6">
+                            <h6>Requester</h6>
+                            <ul class="metadata-list">
+                              <li>
+                                <strong>Name:</strong>
+                                {% if request.preferred_title and request.preferred_title not in ["None", "none", ""] %}
+                                  {{ request.preferred_title }}
+                                {% endif %}
+                                {{ request.user_name }}
+                              </li>
+                              <li><strong>Role:</strong> {{ request.role }}</li>
+                            </ul>
+                          </div>
+                        </div>
+
+                        <hr>
+
+                        <div class="row g-4">
+                          <div class="col-md-6">
+                            <h6>Item Details</h6>
+                            <ul class="metadata-list">
+                              <li><strong>Item ID:</strong> {{ request.itemID }}</li>
+                              <li><strong>Title:</strong> {{ request.title }}</li>
+                              <li><strong>Format:</strong> {{ request.format }}</li>
+                              <li><strong>Item status:</strong> {{ request.status }}</li>
+                            </ul>
+                          </div>
+
+                          <div class="col-md-6">
+                            <h6>Current Request Status</h6>
+
+                            {% if request.requestStatus == "Approved" %}
+                              <span class="badge bg-success">Approved</span>
+                            {% elif request.requestStatus == "Rejected" %}
+                              <span class="badge bg-danger">Rejected</span>
+                            {% elif request.requestStatus == "Pending" %}
+                              <span class="badge bg-warning text-dark">Pending</span>
+                            {% else %}
+                              <span class="badge bg-secondary">
+                                {{ request.requestStatus }}
+                              </span>
+                            {% endif %}
+                          </div>
+                        </div>
+
+                        <hr>
+
+                        <h6>Access Purpose</h6>
+                        <p>
+                          {% if request.purpose %}
+                            {{ request.purpose }}
+                          {% else %}
+                            No purpose was provided with this request.
+                          {% endif %}
+                        </p>
+
+                      </div>
+
+                      <div class="modal-footer">
+
+                        <a
+                          href="{{ url_for('item_detail', item_id=request.itemID) }}"
+                          class="btn btn-outline-dark mybutton"
+                        >
+                          Open Item
+                        </a>
+
+                        {% if request.requestStatus != "Approved" %}
+                          <form method="post" class="d-inline">
+                            <input type="hidden" name="request_id" value="{{ request.requestID }}">
+                            <input type="hidden" name="decision" value="Approved">
+
+                            <button
+                              type="submit"
+                              class="btn btn-success"
+                              onclick="return confirm('Approve this access request?');"
+                            >
+                              Approve Request
+                            </button>
+                          </form>
+                        {% endif %}
+
+                        {% if request.requestStatus != "Rejected" %}
+                          <form method="post" class="d-inline">
+                            <input type="hidden" name="request_id" value="{{ request.requestID }}">
+                            <input type="hidden" name="decision" value="Rejected">
+
+                            <button
+                              type="submit"
+                              class="btn btn-danger"
+                              onclick="return confirm('Reject this access request?');"
+                            >
+                              Reject Request
+                            </button>
+                          </form>
+                        {% endif %}
+
+                        <button
+                          type="button"
+                          class="btn btn-outline-secondary"
+                          data-bs-dismiss="modal"
+                        >
+                          Close
+                        </button>
+
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="alert alert-secondary" role="alert">
+          There are currently no access requests awaiting review.
+        </div>
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+
+<div class="container padb">
+  <div class="alert alert-secondary" role="alert">
+    <strong>Cultural access note:</strong>
+    Access request decisions are prototype content for educational purposes.
+    A real system would require secure login, audit records and formal community governance approval.
+  </div>
+</div>
+
+{% endblock %}

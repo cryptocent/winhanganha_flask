@@ -27,6 +27,7 @@ from project.models import (
     fetch_filtered_items,
     fetch_item,
     fetch_item_type_filters,
+    fetch_requests,
     update_meta_data,
     fetch_review_status_filters,
     fetch_role_by_permission,
@@ -39,6 +40,7 @@ from project.models import (
     secure_filename,
     submit_access_request,
     update_user_permissions,
+    update_request_status,
     verify_user_password,
 )
 
@@ -328,7 +330,35 @@ def add_collection():
         
     return render_template("collection_add.html", collections=collections, form=form)    
         
-        
+
+@app.route("/access-request", methods=["GET", "POST"])
+@login_required
+@permission_required(Permission.REVIEWER)
+def access_requests():
+    if request.method == "POST":
+        request_id = request.form.get("request_id")
+        decision = request.form.get("decision")
+
+        if decision not in ["Approved", "Rejected", "Pending"]:
+            flash("Invalid access request decision.", "danger")
+            return redirect(url_for("access_requests"))
+
+        success = update_request_status(request_id, decision)
+
+        if success:
+            flash(f"Access request {decision.lower()} successfully.", "success")
+        else:
+            flash("Access request could not be updated.", "danger")
+
+        return redirect(url_for("access_requests"))
+
+    requests = fetch_requests()
+
+    return render_template(
+        "access_request.html",
+        requests=requests
+    )
+             
         
 
 @app.route("/add-item", methods=["GET", "POST"])

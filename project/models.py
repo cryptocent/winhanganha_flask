@@ -307,6 +307,54 @@ def fetch_item_status(item_id):
         (item_id,),
     )
 
+def fetch_requests():
+    return rows(
+        """
+        SELECT 
+            ar.requestID,
+            ar.itemID,
+            ar.requestDate,
+            ar.requestStatus,
+            ar.purpose,
+            ci.title,
+            ci.format,
+            ci.status,
+            u.preferred_title,
+            u.name AS user_name,
+            r.name AS role,
+            CASE
+                WHEN ar.requestStatus = 'Pending' THEN 1
+                WHEN ar.requestStatus = 'Approved' THEN 2
+                WHEN ar.requestStatus = 'Rejected' THEN 3
+                ELSE 4
+            END AS sortOrder
+        FROM accessrequest ar
+        JOIN collectionitem ci ON ar.itemID = ci.itemID
+        LEFT JOIN users u ON ar.userID = u.userID
+        LEFT JOIN roles r ON u.permissions = r.permissions
+        WHERE
+            ar.requestStatus != 'Cancel'
+            AND ci.status != 'Remove'
+        ORDER BY
+            sortOrder,
+            ar.requestID
+        """,
+    )
+
+
+def update_request_status(request_id, decision):
+    result = execute(
+        """
+        UPDATE accessrequest
+        SET requestStatus = %s
+        WHERE requestID = %s
+        """,
+        (decision, request_id),
+    )
+
+    return result == 1
+
+
 def fetch_user_requests(user_id):
     return rows(
         """
