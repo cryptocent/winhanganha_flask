@@ -91,7 +91,7 @@
       </div>
       <div class="restricted-panel mt-4">
         <h3 class="h5">Item File</h3>
-{% if access_request.status == 'Approved' or item.accessLevel == 'Public' or current_user.can(Permission.ARCHIVIST) %}
+{% if access_request.requestStatus == 'Approved' or item.accessLevel == 'Public' or current_user.can(Permission.ARCHIVIST) %}
 {% set record_type = file_type(item.recordPath) %}
 {% set record_url = url_for('static', filename=item.recordPath) %}
 
@@ -274,7 +274,7 @@
                     </div>
 
                     <div class="card-body">
-                        <form method="post">
+                        <form method="post" >
                             <div class="mb-3">
                                 {{ form.purpose.label(class="form-label") }}
                                 {{ form.purpose(class="form-select") }}

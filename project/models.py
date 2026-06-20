@@ -2,6 +2,7 @@ from flask_login import UserMixin, AnonymousUserMixin
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 from project import ALLOWED_EXTENSIONS, ALLOWED_IMG_EXTENSIONS, login_manager, mysql
+from datetime import date
 
 class Permission:
         PUBLIC = 1
@@ -281,6 +282,41 @@ def fetch_item(item_id: str):
         (item_id,),
     )
 
+def fetch_assessment(item_id: str):
+    return row(
+        """
+        SELECT ci.itemID AS item_id,
+               ci.title,
+               ci.description,
+               ci.itemType AS item_type,
+               ci.place,
+               ci.languageGroup AS language_group,
+               ci.status,
+               ci.format,
+               DATE_FORMAT(ci.dateAdded, '%%d %%M %%Y') AS date_added,
+               ci.dateRecorded AS date_recorded,
+               ci.imagePath AS image_filename,
+               ci.recordPath as recordPath,
+               c.collectionName AS collection_name,
+               c.description AS collection_description,
+               cm.ownership,
+               cm.accessLevel AS access_level,
+               cm.culturalSensitivity AS cultural_sensitivity,
+               cm.culturalNotes AS cultural_notes,
+               cm.accessConditions AS access_conditions,
+               cm.communityApprovalStatus AS community_approval,
+                u.name as user_name
+        FROM assessmentrecord a
+        JOIN CollectionItem ci on ci.itemID = a.itemID
+        JOIN Collection c ON c.collectionID = ci.collectionID
+        JOIN CulturalMetadata cm ON cm.itemID = ci.itemID
+        join reviewer r on r.reviewerID = a.reviewerID
+        join users u on u.userID = r.userID
+        WHERE ci.itemID = %s
+        """,
+        (item_id,),
+    )
+
 def fetch_item_status(item_id: str):
     return row(
         """
@@ -408,6 +444,17 @@ def get_user_reviewer(userID):
         (userID,),
     )
 
+def get_elder_reviewer_id():
+    return row(
+        """
+        SELECT reviewerID,
+               authorisationStatus,
+               role
+        FROM Reviewer
+        WHERE role = %s
+        """,
+        ("Elder reviewer",),
+    )
 
 def verify_user_password(email, password):
     user = get_user_by_email(email)
@@ -523,8 +570,32 @@ def add_new_item(array):
                 "Under Assessment",
              ),
          )
+    # reviewer_id = get_reviewer_id_hack()
 
-     return item_insert == 1 and meta_insert == 1
+     assessment_record_insert = execute(
+            """
+            INSERT INTO assessmentrecord
+            (
+                assessmentID,
+                itemID,
+                reviewerID,
+                assessmentDate,
+                assessmentOutcome,
+                notes
+            )
+            VALUES (%s, %s, %s,%s, %s, %s)
+            """,
+            (
+                array["assessment_id"],
+                array["item_id"],
+                array["reviewer_id"],
+		        array["date_added"],
+                "Under Review",
+                "Initial submission"
+             ),
+         )   
+
+     return item_insert == 1 and meta_insert == 1 and assessment_record_insert == 1
 
 def get_assessment_rows():
 
@@ -547,16 +618,166 @@ def get_assessment_rows():
                cm.communityApprovalStatus AS review_status,
                cm.culturalNotes AS cultural_notes,
                cm.accessConditions AS access_conditions,
-               ci.description AS public_description
-        FROM CollectionItem ci
+               ci.description AS public_description,
+				u.name as user_name
+
+        from assessmentrecord  a             
+        JOIN CollectionItem ci on ci.itemid = a.itemID
         JOIN Collection c ON c.collectionID = ci.collectionID
         JOIN CulturalMetadata cm ON cm.itemID = ci.itemID
-        WHERE ci.status = 'Under Assessment'
+        join reviewer r on r.reviewerID = a.reviewerID
+        join users u on u.userID = r.userID
+		WHERE ci.status = 'Under Assessment'
         ORDER BY ci.itemID
         """
     )
     
      return assessment_rows
+
+
+def get_pending_access_requests():
+
+    access_request_rows = rows (
+        """
+        with accessrequest as ( 
+            select 
+                requestID,
+                itemID,
+                userID,
+                requestDate,
+                requestStatus,
+                purpose
+            from accessrequest
+        ), requester as ( 
+            select 
+                userID,
+                name,
+                email
+            from users 
+        ), item as ( 
+            select 
+                itemID,
+                collectionID,
+                title,
+                itemtype,
+                imagePath,
+                status
+            from collectionitem
+        ), collection as ( 
+            select 
+                collectionID,
+                collectionName
+            from collection
+        ), culturalmetadata as ( 
+            select 
+                metadataID,
+                itemID,
+                accessLevel,
+                culturalSensitivity
+            from culturalmetadata
+        )
+        select
+            a.requestID as access_request_id,
+            a.itemID as item_id,
+            a.userID as user_id,
+            a.requestDate as request_date,
+            a.requestStatus as request_status,
+            a.purpose as purpose,
+            r.name as requestor_name,
+            r.email as requestor_email,
+            i.title as title,
+            i.status as status,
+            i.itemtype as item_type,
+            i.imagepath as image_filename,
+            i.collectionID as collection_id,
+            c.collectionname as collection_name,
+            m.metadataID as metadata_id,
+            m.accessLevel as access_level,
+            m.culturalSensitivity as cultural_sensitivity
+        from accessrequest a 
+        join requester r on a.userid = r.userid
+        join item i on a.itemID = i.itemID
+        join collection c on c.collectionID = i.collectionID 
+        join culturalmetadata m on m.itemID = i.itemID
+        where a.requestStatus = 'Pending'
+        """
+    )
+    return access_request_rows
+
+
+def get_access_request_by_id(requestID):
+
+    return row (
+        """
+        with accessrequest as ( 
+            select 
+                requestID,
+                itemID,
+                userID,
+                requestDate,
+                requestStatus,
+                purpose
+            from accessrequest
+        ), requestor as ( 
+            select 
+                userID,
+                name,
+                email
+            from users 
+        ), item as ( 
+            select 
+                itemID,
+                collectionID,
+                title,
+                itemtype,
+                imagePath,
+                place,
+                languagegroup,
+                status
+            from collectionitem
+        ), collection as ( 
+            select 
+                collectionID,
+                collectionName
+            from collection
+        ), culturalmetadata as ( 
+            select 
+                metadataID,
+                itemID,
+                accessLevel,
+                culturalSensitivity
+            from culturalmetadata
+        )
+        select
+            a.requestID as access_request_id,
+            a.itemID as item_id,
+            a.userID as user_id,
+            a.requestDate as request_date,
+            a.requestStatus as request_status,
+            a.purpose as purpose,
+            r.name as requestor_name,
+            r.email as requestor_email,
+            i.title as title,
+            i.status as status,
+            i.itemtype as item_type,
+            i.imagepath as image_filename,
+            i.place as place,
+            i.languagegroup as language_group,
+            i.collectionID as collection_id,
+            c.collectionname as collection_name,
+            m.metadataID as metadata_id,
+            m.accessLevel as access_level,
+            m.culturalSensitivity as cultural_sensitivity
+        from accessrequest a 
+        join requestor r on a.userid = r.userid
+        join item i on a.itemID = i.itemID
+        join collection c on c.collectionID = i.collectionID 
+        join culturalmetadata m on m.itemID = i.itemID
+        where a.requestID = %s
+        """,
+        (requestID,),
+    )
+
 
 def get_featured_items():
     featured_items = rows(
@@ -595,17 +816,18 @@ def get_item_metadata(item_id):
 
 
 def submit_access_request(request_array):
+    today = date.today()
     execute(
             """
             INSERT INTO accessrequest
             (requestID, itemID, userID, requestDate, requestStatus, purpose)
             VALUES (%s, %s, %s, %s, %s, %s)
             """,
-            (
+            ( 
                 request_array["request_id"],
                 request_array["item_id"],
-                current_user.userID,
-                date.today().isoformat(),
+                request_array["user_id"],
+                date.today(),
                 "Pending",
                 request_array["full_purpose"],
             ),
@@ -707,3 +929,70 @@ def fetch_review_status_filters():
         ORDER BY communityApprovalStatus
         """
     )
+
+def get_reviewer_id_hack():
+    return rows(
+        """
+        SELECT reviewerID
+        FROM REVIEWER 
+        where role in ('Elder reviewer','Community representative','Collection manager')
+        order by FIELD(role,'Elder reviewer','Collection manager','Community representative')
+        LIMIT 1;
+        """
+    )
+
+def execute_assessment_updates(item_id, final_decision):
+    cur = mysql.connection.cursor()
+    try:
+        mapped_status = get_mapped_status(final_decision)
+        if mapped_status is None:
+            raise ValueError(f"Mapping failed! '{final_decision}' is not a valid LHS status option.")
+        assessment_query = "update assessmentrecord set assessmentoutcome = %s where itemid = %s" 
+        cur.execute(assessment_query, (final_decision, item_id))
+        item_query = "update collectionitem set status = %s WHERE itemid = %s" 
+        cur.execute(item_query, (mapped_status, item_id))        
+        mysql.connection.commit()
+        return cur.rowcount
+    except:
+        mysql.connection.rollback()
+        raise
+    finally:
+        cur.close()
+
+def get_mapped_status(status_string):
+
+    status_mapping = {
+        'Decision pending': 'Continue review',
+        'Release publicly': 'Public release approved',
+        'Keep private': 'Keep private',
+        'Release with restricted access': 'Restricted access'
+    }
+
+    return status_mapping.get(status_string, None)
+
+
+def execute_access_request(access_request_id, final_decision):
+    execute(
+        """
+        update accessrequest
+        set requeststatus = %s
+        WHERE requestid = %s
+        """,
+        (final_decision, access_request_id)
+    )
+
+def update_metadata(metadata_id, access_level, cultural_sensitivity, community_approval_status, access_conditions, cultural_notes):
+    execute(
+        """
+        update culturalmetadata
+        set accessLevel = %s,
+            culturalSensitivity = %s,
+            communityApprovalStatus = %s,
+            accessConditions = %s,
+            culturalNotes = %s
+        WHERE metadataID = %s
+        """,
+        (access_level, cultural_sensitivity, community_approval_status, access_conditions, cultural_notes, metadata_id)        
+    )
+
+

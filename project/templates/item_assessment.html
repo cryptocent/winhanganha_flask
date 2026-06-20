@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_helpers.html" import access_badge %}
+{% from "_helpers.html" import access_badge, render_field %}
 
 {% block title %}Item Assessment Portal | First Nations Winhanganha Archive{% endblock %}
 {% block hero_title %}Item Assessment Portal{% endblock %}
@@ -31,11 +31,8 @@
       <p>This page represents the internal assessment workflow for authorised Elders, community representatives and archive staff.</p>
 
       <div class="card">
-        <img 
-          src="{{ url_for('static', filename=assessment.image_filename) }}" 
-          class="card-img-top max-width-img" 
-          alt="Placeholder image for item under assessment"
-        >
+        <img src="{{ url_for('static', filename=assessment.image_filename) }}" class="card-img-top max-width-img"
+          alt="Placeholder image for item under assessment">
 
         <div class="card-body">
           <h3 class="h4 card-title">{{ assessment.title }}</h3>
@@ -49,7 +46,7 @@
             <li><strong>Place:</strong> {{ assessment.place }}</li>
             <li><strong>Date recorded:</strong> {{ assessment.date_recorded }}</li>
             <li><strong>Current access:</strong> {{ access_badge(assessment.access_level) }}</li>
-            <li><strong>Current review status:</strong> {{ assessment.review_status }}</li>
+            <li><strong>Current review status:</strong> {{ assessment.community_approval }}</li>
             <li>
               <strong>Sensitivity level:</strong>
               <span class="badge bg-danger">{{ assessment.cultural_sensitivity }} cultural sensitivity</span>
@@ -72,107 +69,179 @@
       <div class="restricted-panel">
         <p>
           <span class="assessment-label">Assigned reviewers:</span><br>
-          {{ assessment.assigned_reviewers }}
+          {{ assessment.user_name }}
         </p>
         <p>
-          <span class="assessment-label">Assessment opened:</span><br>
-          {{ assessment.opened_date }}
+          <span class="assessment-label">Assessment created:</span><br>
+          {{ assessment.date_added }}
         </p>
-        <p>
+        <!-- <p>
           <span class="assessment-label">Target decision date:</span><br>
           {{ assessment.target_decision_date }}
         </p>
         <p>
           <span class="assessment-label">Pending action:</span><br>
           {{ assessment.pending_action }}
-        </p>
+        </p> -->
       </div>
     </div>
   </div>
 </div>
 
-{% include "metadata_form.html" %}
+<div class="accordion container padb col-lg-8" id="accordionExample">
+  <div class="accordion-item">
+    {% set is_approved = assessment.community_approval and assessment.community_approval not in (None, 'None', '') and 
+    assessment.community_approval in ('Approved for public release', 'Approved with restrictions', 'Not approved for public release') %}
+    <button class="accordion-button {% if is_approved %}collapsed{% endif %}" type="button" data-bs-toggle="collapse"
+      data-bs-target="#collapseOne" aria-expanded="{% if not is_approved %}true{% else %}false{% endif %}">
+      Metadata Assessment {% if is_approved %}✅{% endif %}
+    </button>
 
-<hr class="my-5">
-
-<div class="container padb">
-  <div class="row g-4">
-    <div class="col-lg-7">
-      <h2>Reviewer Discussion</h2>
-      <p>Discussion notes record the review process and support accountable access decisions.</p>
-
-      {% for note in notes %}
-      <div class="discussion-note">
-        <p>
-          <strong>{{ note.reviewer_name }}</strong>
-          <span class="text-muted">{{ note.note_date }}</span>
+    <div id="collapseOne"
+      class="accordion-collapse collapse {% if not is_approved %}show{% endif %}"
+      data-bs-parent="#accordionExample">
+      <div class="accordion-body">
+        <h2>Assessment Metadata</h2>
+        <p>Reviewers update this section to define cultural access conditions before the item is released or restricted.
         </p>
-        <p>{{ note.note_text }}</p>
-      </div>
-      {% endfor %}
 
-      <form>
-        <div class="mb-3">
-          <label for="newDiscussionNote" class="form-label">Add discussion note</label>
-          <textarea 
-            class="form-control" 
-            id="newDiscussionNote" 
-            placeholder="Enter review note..."
-          ></textarea>
-        </div>
-
-        <button type="button" class="btn btn-dark mybutton addDiscussionNote">
-          Add note
-        </button>
-      </form>
-    </div>
-
-    <div class="col-lg-5">
-      <h2>Final Decision</h2>
-
-      <div class="decision-box">
-        <p>This decision area would be completed by the authorised review group after consultation.</p>
-
-        <form>
-          <div class="mb-3">
-            <label for="finalDecision" class="form-label">Decision outcome</label>
-            <select class="form-select" id="finalDecision">
-              {% for option in ['Decision pending', 'Release publicly', 'Release with restricted access', 'Keep private', 'Return for further consultation'] %}
-                <option {% if option == assessment.final_decision %}selected{% endif %}>
+        <form method="post" action="{{ url_for('assessment_item', item_id=assessment.item_id) }}">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label for="accessDecision" class="form-label">Access level</label>
+              <select class="form-select" id="accessDecision" name="access_level">
+                {% for option in ['', 'Under Assessment', 'Public', 'Restricted', 'Private'] %}
+                <option value="{{ option }}" {% if option==assessment.access_level %}selected{% endif %}>
                   {{ option }}
                 </option>
-              {% endfor %}
-            </select>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-md-4">
+              <label for="culturalSensitivity" class="form-label">Cultural sensitivity</label>
+              <select class="form-select" id="culturalSensitivity" name="cultural_sensitivity">
+                {% for option in ['', 'High', 'Medium', 'Low', 'Not yet assessed'] %}
+                <option value="{{ option }}" {% if option==assessment.cultural_sensitivity %}selected{% endif %}>
+                  {{ option }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-md-4">
+              <label for="approvalStatus" class="form-label">Approval status</label>
+              <select class="form-select" id="approvalStatus" name="community_approval">
+                {% for option in ['', 'Awaiting Elder review', 'Approved for public release', 'Approved with restrictions', 'Not approved for public release'] %}
+                <option value="{{ option }}" {% if option==assessment.community_approval %}selected{% endif %}>
+                  {{ option }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <div class="mb-3 mt-3">
+            <label for="culturalNotes" class="form-label">Cultural notes</label>
+            <textarea class="form-control" id="culturalNotes"
+              name="cultural_notes">{{ assessment.cultural_notes }}</textarea>
           </div>
 
           <div class="mb-3">
-            <label for="decisionReason" class="form-label">Decision reason</label>
-            <textarea class="form-control" id="decisionReason">{{ assessment.decision_reason }}</textarea>
+            <label for="accessConditions" class="form-label">Access conditions</label>
+            <textarea class="form-control" id="accessConditions"
+              name="access_conditions">{{ assessment.access_conditions }}</textarea>
           </div>
 
-          <div class="mb-3">
-            <label for="reviewerSignature" class="form-label">Reviewer confirmation</label>
-            <input 
-              type="text" 
-              class="form-control" 
-              id="reviewerSignature" 
-              placeholder="Reviewer name"
-            >
-          </div>
-
-          <button type="button" class="btn btn-dark mybutton">
-            Record final decision
+          <button type="submit" class="btn btn-dark mybutton saveMetadata" name="submit_metadata">
+            Save assessment metadata
           </button>
         </form>
       </div>
     </div>
   </div>
+  <div class="accordion-item">
+    <h2 class="accordion-header">
+      <button class="accordion-button {% if not is_approved %}collapsed{% endif %}" type="button"
+        data-bs-toggle="collapse" data-bs-target="#collapseTwo"
+        aria-expanded="{% if is_approved %}true{% else %}false{% endif %}" {% if not is_approved %}disabled{% endif %}>
+        Item Classification Decision
+      </button>
+    </h2>
+    
+    <div id="collapseTwo" class="accordion-collapse collapse {% if is_approved %}show{% endif %}" data-bs-parent="#accordionExample">
+      <div class="accordion-body">
+        <div class="col-lg-12"> 
+          <h2>Final Decision</h2>
+          <p>This decision area would be completed by the authorised review group after consultation.</p>
+
+          <form method="post" action="{{ url_for('assessment_item', item_id=assessment.item_id) }}">
+            <div class="mb-3">
+              {{ render_field(form.final_decision) }}
+            </div>
+
+            <div class="mb-3">
+              {{ render_field(form.decision_reason) }}
+            </div>
+            
+            <button type="submit" class="btn btn-success mybutton {% if not is_approved %}disabled{% endif %}">
+              Submit Decision
+            </button>
+          </form>
+        </div>
+      </div>
+    </div> 
+  </div>
+
+  <div class="accordion-item">
+    <h2 class="accordion-header">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree"
+        aria-expanded="false" aria-controls="collapseThree">
+        Reviewer Discussions
+      </button>
+    </h2>
+    <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+      <div class="accordion-body">
+        <div class="col-lg-7">
+          <h2>Reviewer Discussion</h2>
+          <p>Discussion notes record the review process and support accountable access decisions.</p>
+
+          {% for note in notes %}
+          <div class="discussion-note">
+            <p>
+              <strong>{{ note.reviewer_name }}</strong>
+              <span class="text-muted">{{ note.note_date }}</span>
+            </p>
+            <p>{{ note.note_text }}</p>
+          </div>
+          {% endfor %}
+
+          <form>
+            <div class="mb-3">
+              <label for="newDiscussionNote" class="form-label">Add discussion note</label>
+              <textarea class="form-control" id="newDiscussionNote" placeholder="Enter review note..."></textarea>
+            </div>
+
+            <button type="button" class="btn btn-dark mybutton addDiscussionNote">
+              Add note
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
+
+
+<hr class="my-5">
+
+
 
 <div class="container padb">
   <div class="alert alert-secondary" role="alert">
     <strong>Cultural access note:</strong>
-    Assessment information is prototype content for educational purposes. A real system would require secure login, audit records and formal community governance approval.
+    Assessment information is prototype content for educational purposes. A real system would require secure login,
+    audit records and formal community governance approval.
   </div>
 </div>
 {% endblock %}

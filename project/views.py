@@ -10,7 +10,7 @@ from uuid import uuid4
 from werkzeug.utils import secure_filename
 from project import ALLOWED_EXTENSIONS, ALLOWED_IMG_EXTENSIONS, app
 from project.decorators import permission_required, is_administrator
-from project.forms import LoginForm, MetadataForm, RegistrationForm, AccessRequestForm, AddItemForm, CancelUserRequest, ContactForm
+from project.forms import LoginForm, MetadataForm, RegistrationForm, AccessRequestForm, AddItemForm, CancelUserRequest, AssessmentForm, AccessRequestDecisionForm, ContactForm
 from project.models import (
     Permission,
     Role,
@@ -25,6 +25,7 @@ from project.models import (
     fetch_collections,
     fetch_filtered_items,
     fetch_item,
+    fetch_assessment,
     fetch_item_status,
     fetch_item_type_filters,
     fetch_review_status_filters,
@@ -44,6 +45,12 @@ from project.models import (
     submit_access_request,
     update_user_permissions,
     verify_user_password,
+    execute_assessment_updates,
+    get_reviewer_id_hack,
+    get_pending_access_requests,
+    get_access_request_by_id,
+    execute_access_request,
+    update_metadata
 )
 
 @app.errorhandler(403)
@@ -125,7 +132,8 @@ def item_detail(item_id):
         purpose = form.purpose.data.strip()
         details = form.details.data.strip()
         request_array["full_purpose"] = purpose if not details else f"{purpose}: {details}"
-
+        request_array["item_id"] = item_id
+        request_array["user_id"] = current_user.userID
 
         success = submit_access_request(request_array)
         
@@ -135,13 +143,13 @@ def item_detail(item_id):
     return render_template("item_detail.html", item=item, requirements=requirements, form=form, access_request=request_row)
 
 
-@app.route("/item-assessments")
+@app.route("/item-assessments", methods=["GET", "POST"])
 @login_required
 @permission_required(Permission.REVIEWER)
 def assessments():
     assessment_rows = get_assessment_rows()
-       
-    return render_template("item_assessment_list.html", assessments=assessment_rows)
+    access_request_rows = get_pending_access_requests()  
+    return render_template("item_assessment_list.html", assessments=assessment_rows, access_requests = access_request_rows)
 
 
 
@@ -151,9 +159,42 @@ def assessments():
 @login_required
 @permission_required(Permission.REVIEWER)
 def assessment_item(item_id):
+    form = AssessmentForm(request.form)
+    final_decision = None 
+    if request.method == "POST":
+        final_decision = request.form.get("final_decision")
+        #print(f"POST received for Item ID: {item_id}, Decision Outcome: {final_decision}")
+        if "submit_metadata" in request.form:
+            metadata = get_item_metadata(item_id)
+            metadata_id = metadata[0]['requirement_id']
+            update_metadata(metadata_id, request.form.get("access_level"), request.form.get("cultural_sensitivity"),    
+                            request.form.get("community_approval"), request.form.get("access_conditions"),
+                            request.form.get("cultural_notes"))
+            flash("Metadata Updated", "success")   
+        elif final_decision:
+            execute_assessment_updates(item_id, final_decision)
+            flash("Assessment completed successfully", "success")
+            return redirect(url_for("assessments"))        
+        else:
+            flash("No decision was selected.", "danger")
 
-    assessment_row = fetch_item(item_id) 
-    return render_template("item_assessment.html", assessment=assessment_row)
+    assessment_row = fetch_assessment(item_id) 
+    return render_template("item_assessment.html", assessment=assessment_row, 
+        form=form, item_id=item_id, final_decision=final_decision)
+
+
+@app.route("/access_request/<access_request_id>", methods=["GET", "POST"])
+@login_required
+@permission_required(Permission.REVIEWER)
+def access_request(access_request_id):
+    form = AccessRequestDecisionForm(request.form)
+    if request.method == "POST":
+        final_decision = request.form.get("final_decision")
+        execute_access_request(access_request_id, final_decision)
+        return redirect(url_for("assessments"))
+    access_request_row = get_access_request_by_id(access_request_id)
+    return render_template("access_request.html", access_request=access_request_row, 
+        form=form, access_request_id=access_request_id)
 
 
 
@@ -293,7 +334,8 @@ def add_item():
         dataArray["date_added"] = date.today().strftime("%Y-%m-%d")
         dataArray["item_id"] = next_id("CollectionItem", "itemID", "I")
         dataArray["meta_id"] = next_id("culturalmetadata", "metadataID", "M")
-
+        dataArray["assessment_id"] = next_id("assessmentrecord", "assessmentID", "A")
+        dataArray["reviewer_id"] = get_reviewer_id_hack()[0]['reviewerID']  
         dataArray["img_path"] = "img/placeholder.png"
         dataArray["record_path"] = None
 

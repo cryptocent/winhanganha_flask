@@ -54,6 +54,12 @@
 
   {% if field.type == "BooleanField" %}
     {{ field(class="form-check-input") }}
+    
+  {% elif field.type == "SelectField" %}
+    {{ field(class="form-select") }}
+      
+    {% elif field.type == "TextAreaField" %}
+      {{ field(class="form-control", rows="4") }}
   {% else %}
     {{ field(class="form-control") }}
   {% endif %}

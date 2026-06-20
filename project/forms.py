@@ -147,4 +147,35 @@ class CancelUserRequest(Form):
 #         coerce=int,
 #         validators=[DataRequired()]
 #     )
+
+class AssessmentForm(Form):
+    final_decision = SelectField(
+        "Decision Required",
+        [DataRequired()],
+        choices=[
+            ("", "Select a decision"),
+            ("Decision pending","Decision pending"),
+            ("Release publicly", "Release publicly"),
+            ("Release with restricted access", "Release with restricted access"),
+            ("Keep private", "Keep private"),
+            ("Library consultation", "Library consultation"),
+            ("Return for further consultation", "Return for further consultation"),
+        ]
+    )
+    decision_reason = StringField("Decision Reason")
+
+
+class AccessRequestDecisionForm(Form):
+    final_decision = SelectField(
+        "Access Request Decision",
+        [DataRequired()],
+        choices=[
+            ("", "Select a decision"),
+            ("Pending","Pending"),
+            ("Approved", "Approved"),
+            ("Rejected", "Rejected"),
+            ("Cancel", "Cancel"),
+        ]
+    )
+
     

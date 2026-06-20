@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% from "_helpers.html" import access_badge, render_field %}
+
+{% block title %}Access Request | First Nations Winhanganha Archive{% endblock %}
+{% block hero_title %}Access Request Assessment{% endblock %}
+
+{% block content %}
+<div class="container">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb bg-light p-3 rounded">
+      <li class="breadcrumb-item">
+        <a href="{{ url_for('home') }}">Home</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{{ url_for('account') }}">Account</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{{ url_for('assessments') }}">Assessment Portal</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">Access Request Assessment</li>
+    </ol>
+  </nav>
+</div>
+
+<hr class="my-5">
+
+<div class="container padb">
+  <div class="row g-4">
+    <div class="col-lg-7">
+      <h2>Pending Access Request</h2>
+      <p>Review this request to confirm if the requester can access this item.</p>
+
+      <div class="card">
+        
+
+        <div class="card-body">
+          <!-- <p class="card-text">{{ access_request.description }}</p> -->
+
+          <ul class="metadata-list">
+            <li><strong>Access Request ID:</strong> {{ access_request.access_request_id}}</li>
+            <li><strong>Requestor:</strong> {{ access_request.requestor_name }}</li>
+            <li><strong>Requestor email:</strong> {{ access_request.requestor_email}}</li>
+            <br>
+            <li><strong>Item title:</strong> 
+              <a href="{{ url_for('item_detail', item_id=access_request.item_id) }}" class="lowprofilelink btn btn-link">{{ access_request.title }}</a>
+            </li>
+            <li><strong>Item ID:</strong> {{ access_request.item_id }} </li>
+            <li><strong>Collection:</strong> {{ access_request.collection_name }}</li>
+            <li><strong>Item type:</strong> {{ access_request.item_type }}</li>
+            <li><strong>Language group:</strong> {{ access_request.language_group }}</li>
+            <li><strong>Place:</strong> {{ access_request.place }}</li>
+            <li><strong>Access level:</strong> {{access_request.access_level}}</li>
+            <li>
+              <strong>Cultural sensitivity level:</strong> {{ access_request.cultural_sensitivity }}</span>
+            </li>
+            <li>
+              <strong>Item image reference (below):</strong></span>
+            </li>
+          </ul>
+          <img src="{{ url_for('static', filename=access_request.image_filename) }}" class="card-img-top thumb-size-img"  alt="Placeholder " >
+          <br><br>
+      
+
+        <form method="post" action="{{ url_for('access_request', access_request_id=access_request.access_request_id)}}">
+          <div class="mb-3">
+            {{ render_field(form.final_decision) }}
+          </div>
+
+          <!-- <div class="mb-3">
+
+          </div> -->
+          <button type="submit" class="btn btn-primary mybutton">
+            Submit Decision
+          </button>
+        </form>
+      </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container padb">
+  <div class="alert alert-secondary" role="alert">
+    <strong>Cultural access note:</strong>
+    Assessment information is prototype content for educational purposes. A real system would require secure login, audit records and formal community governance approval.
+  </div>
+</div>
+{% endblock %}

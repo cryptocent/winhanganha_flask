@@ -137,3 +137,14 @@ textarea {
 .max-width-img {
     max-width: 400px !important;
 }
+
+.thumb-size-img {
+    max-width: 200px !important;
+}
+
+.lowprofilelink {
+  padding-bottom: 0px;
+  padding-left: 2px;
+  padding-right: 2px;
+  padding-top: 0px;
+}
