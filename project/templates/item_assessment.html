@@ -200,29 +200,33 @@
         Reviewer Discussions
       </button>
     </h2>
-    <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+    <div id="collapseThree" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
       <div class="accordion-body">
-        <div class="col-lg-7">
+        <div>
           <h2>Reviewer Discussion</h2>
           <p>Discussion notes record the review process and support accountable access decisions.</p>
 
-          {% for note in notes %}
-          <div class="discussion-note">
-            <p>
-              <strong>{{ note.reviewer_name }}</strong>
-              <span class="text-muted">{{ note.note_date }}</span>
-            </p>
-            <p>{{ note.note_text }}</p>
-          </div>
-          {% endfor %}
-
-          <form>
+          {% if notes %}
+            <ul class="list-group">
+            {% for note in notes %}
+              <li class=" list-group-item">
+                <p>
+                  <strong>{{ note.user_name }}</strong>
+                  <span class="text-muted"> commented on {{ note.comment_date }}: </span>
+                </p>
+                <p>{{ note.comment_text }}</p>
+              </li>
+            {% endfor %}
+            </ul>
+          {% endif %}
+          <br/>
+          <form method="post" action="{{ url_for('assessment_item', item_id=assessment.item_id) }}">
             <div class="mb-3">
-              <label for="newDiscussionNote" class="form-label">Add discussion note</label>
-              <textarea class="form-control" id="newDiscussionNote" placeholder="Enter review note..."></textarea>
+              <label for="newDiscussionNote" class="form-label fw-medium">Add new discussion note</label>
+              <textarea class="form-control" id="newDiscussionNote" name="discussion_note" placeholder="Enter review note..."></textarea>
             </div>
 
-            <button type="button" class="btn btn-dark mybutton addDiscussionNote">
+            <button type="submit" class="btn btn-dark mybutton addDiscussionNote" name="submit_notes">
               Add note
             </button>
           </form>

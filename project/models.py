@@ -285,7 +285,9 @@ def fetch_item(item_id: str):
 def fetch_assessment(item_id: str):
     return row(
         """
-        SELECT ci.itemID AS item_id,
+        SELECT 
+               a.assessmentID as assessment_id, 
+               ci.itemID AS item_id,
                ci.title,
                ci.description,
                ci.itemType AS item_type,
@@ -996,3 +998,52 @@ def update_metadata(metadata_id, access_level, cultural_sensitivity, community_a
     )
 
 
+def insert_assessment_comment(comment_id, assessment_id, user_id, date_time, comment):
+    execute(
+        """
+        INSERT INTO assessmentcomment
+            (commentID,
+            assessmentID,
+            reviewerID,
+            commentText,
+            commentDate)
+            VALUES
+            (%s, %s, %s, %s, %s);
+        """,
+        (comment_id, assessment_id, user_id, comment, date_time )        
+    )
+
+
+def fetch_assessment_comments(assessment_id):
+    return rows(
+        """
+        with comments as (
+            select 
+                assessmentID as assessment_id,
+                reviewerID,
+                commentText as comment_text,
+                commentDate as comment_date
+            from assessmentcomment
+        ), reviewers as (
+            select
+                reviewerID,
+                userID
+            from reviewer
+        ), commentators as (
+            select 
+                userID,
+                name
+            from users 
+        )  
+        select 
+            assessment_id,
+            name as user_name,
+            comment_text,
+            comment_date
+        from comments c
+        join reviewers r on r.reviewerID = c.reviewerID
+        join commentators co on r.userID = co.userID 
+        where assessment_id = %s
+        """,
+        (assessment_id,),        
+    )    
