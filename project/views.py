@@ -50,7 +50,9 @@ from project.models import (
     get_pending_access_requests,
     get_access_request_by_id,
     execute_access_request,
-    update_metadata
+    update_metadata,
+    insert_assessment_comment,
+    fetch_assessment_comments
 )
 
 @app.errorhandler(403)
@@ -174,12 +176,26 @@ def assessment_item(item_id):
         elif final_decision:
             execute_assessment_updates(item_id, final_decision)
             flash("Assessment completed successfully", "success")
-            return redirect(url_for("assessments"))        
+            return redirect(url_for("assessments"))   
+        elif "submit_notes" in request.form:  
+            assessment_row = fetch_assessment(item_id) 
+            reviewer = get_user_reviewer(current_user.userID)
+            print(reviewer)
+            print(assessment_row)
+            note = request.form.get("discussion_note")
+            date_added = date.today().strftime("%Y-%m-%d %H:%M:%S")  
+            comment_id = next_id("assessmentcomment", "commentID", "AC")
+            #user_id = current_user.userID         
+            insert_assessment_comment(comment_id, assessment_row['assessment_id'],reviewer['reviewerID'], date_added, note)   
+            flash("Note added", "success")        
         else:
             flash("No decision was selected.", "danger")
 
     assessment_row = fetch_assessment(item_id) 
-    return render_template("item_assessment.html", assessment=assessment_row, 
+    print(assessment_row['assessment_id'])
+    assements_comments = fetch_assessment_comments(assessment_row['assessment_id'])
+    print(assements_comments)
+    return render_template("item_assessment.html", assessment=assessment_row, notes = assements_comments,
         form=form, item_id=item_id, final_decision=final_decision)
 
 

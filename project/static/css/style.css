@@ -148,3 +148,11 @@ textarea {
   padding-right: 2px;
   padding-top: 0px;
 }
+
+.accordion-button.collapsed {
+    background-color: #fff8f0; 
+    color: #495057;           
+}
+.accordion-item {
+    border-color: #e9ecef;
+}
