@@ -41,13 +41,6 @@ CREATE TABLE `accessrequest` (
 --
 
 INSERT INTO `accessrequest` (`requestID`, `itemID`, `userID`, `requestDate`, `requestStatus`, `purpose`) VALUES
-('Q001', 'I002', 'Sarah Nguyen', '2026-05-22', 'Pending', 'Research project on oral history preservation'),
-('Q002', 'I001', 'Michael Harris', '2026-05-23', 'Pending', 'Teaching resource development'),
-('Q003', 'I003', 'Priya Patel', '2026-05-24', 'Approved', 'Class display of public historical image'),
-('Q004', 'I001', '', '2026-06-10', 'Pending', ''),
-('Q005', 'I001', '', '2026-06-10', 'Pending', ''),
-('Q006', 'I001', '', '2026-06-10', 'Pending', ''),
-('Q007', 'I001', '', '2026-06-10', 'Pending', ''),
 ('Q008', 'I001', 'U005', '2026-06-12', 'Cancel', 'Lore: research my history'),
 ('Q009', 'I002', 'U005', '2026-06-13', 'Cancel', 'Research: test'),
 ('Q010', 'I002', 'U005', '2026-06-15', 'Pending', 'Lore: test'),
@@ -62,7 +55,7 @@ INSERT INTO `accessrequest` (`requestID`, `itemID`, `userID`, `requestDate`, `re
 CREATE TABLE `approval` (
   `approvalID` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
   `requestID` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `reviewerID` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `userID` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
   `approvalDate` date NOT NULL,
   `approvalStatus` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   `approvalNotes` text COLLATE utf8mb4_unicode_ci NOT NULL
@@ -72,7 +65,7 @@ CREATE TABLE `approval` (
 -- Dumping data for table `approval`
 --
 
-INSERT INTO `approval` (`approvalID`, `requestID`, `reviewerID`, `approvalDate`, `approvalStatus`, `approvalNotes`) VALUES
+INSERT INTO `approval` (`approvalID`, `requestID`, `userID`, `approvalDate`, `approvalStatus`, `approvalNotes`) VALUES
 ('P001', 'Q001', 'R001', '2026-05-24', 'Rejected', 'Item contains restricted family knowledge'),
 ('P002', 'Q002', 'R001', '2026-05-24', 'Pending', 'Awaiting further community consultation'),
 ('P003', 'Q003', 'R003', '2026-05-24', 'Approved', 'Public item may be viewed with acknowledgement');
@@ -86,7 +79,7 @@ INSERT INTO `approval` (`approvalID`, `requestID`, `reviewerID`, `approvalDate`,
 CREATE TABLE `assessmentcomment` (
   `commentID` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
   `assessmentID` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `reviewerID` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `userID` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
   `commentText` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `commentDate` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -95,13 +88,13 @@ CREATE TABLE `assessmentcomment` (
 -- Dumping data for table `assessmentcomment`
 --
 
-INSERT INTO `assessmentcomment` (`commentID`, `assessmentID`, `reviewerID`, `commentText`, `commentDate`) VALUES
-('AC001', 'A001', 'R001', 'Confirm wording with language group before release', '2026-05-20'),
-('AC002', 'A002', 'R002', 'Access request process should be used for this item', '2026-05-21'),
-('AC003', 'A003', 'R003', 'Approved description can be shown on public page', '2026-05-22'),
-('AC004', 'A004', 'R001', 'The public record should not include detailed ceremonial references. A shorter description may be suitable if the family names and sensitive place details are removed.', '2026-05-21'),
-('AC005', 'A004', 'R004', 'Recommend restricted access until further consultation with the relevant family group has been completed.', '2026-05-22'),
-('AC006', 'A004', 'R002', 'Metadata can be updated once the review group confirms the approved access level and public catalogue wording.', '2026-05-23');
+INSERT INTO `assessmentcomment` (`commentID`, `assessmentID`, `userID`, `commentText`, `commentDate`) VALUES
+('AC001', 'A001', 'U001', 'Confirm wording with language group before release', '2026-05-20'),
+('AC002', 'A002', 'U001', 'Access request process should be used for this item', '2026-05-21'),
+('AC003', 'A003', 'U004', 'Approved description can be shown on public page', '2026-05-22'),
+('AC004', 'A004', 'U001', 'The public record should not include detailed ceremonial references. A shorter description may be suitable if the family names and sensitive place details are removed.', '2026-05-21'),
+('AC005', 'A004', 'U004', 'Recommend restricted access until further consultation with the relevant family group has been completed.', '2026-05-22'),
+('AC006', 'A004', 'U004', 'Metadata can be updated once the review group confirms the approved access level and public catalogue wording.', '2026-05-23');
 
 -- --------------------------------------------------------
 
@@ -112,7 +105,7 @@ INSERT INTO `assessmentcomment` (`commentID`, `assessmentID`, `reviewerID`, `com
 CREATE TABLE `assessmentrecord` (
   `assessmentID` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
   `itemID` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `reviewerID` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `userID` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
   `assessmentDate` date NOT NULL,
   `assessmentOutcome` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
   `notes` text COLLATE utf8mb4_unicode_ci NOT NULL
@@ -122,13 +115,13 @@ CREATE TABLE `assessmentrecord` (
 -- Dumping data for table `assessmentrecord`
 --
 
-INSERT INTO `assessmentrecord` (`assessmentID`, `itemID`, `reviewerID`, `assessmentDate`, `assessmentOutcome`, `notes`) VALUES
-('A001', 'I001', 'R001', '2026-05-20', 'Continue review', 'Language spelling and access notes require confirmation'),
-('A002', 'I002', 'R001', '2026-05-21', 'Restricted access', 'Recording contains family knowledge and should not be public'),
-('A003', 'I003', 'R003', '2026-05-22', 'Public release approved', 'Description and access conditions approved'),
-('A004', 'I004', 'R001', '2026-05-21', 'Continue review', 'Confirm whether item can be released with restricted access or must remain private.'),
-('A005', 'I005', 'R003', '2026-05-22', 'Keep private', 'Internal consultation material should remain private.'),
-('A006', 'I006', 'R002', '2026-05-22', 'Restricted access', 'Detailed place data requires approval before access.');
+INSERT INTO `assessmentrecord` (`assessmentID`, `itemID`, `userID`, `assessmentDate`, `assessmentOutcome`, `notes`) VALUES
+('A001', 'I001', 'U001', '2026-05-20', 'Continue review', 'Language spelling and access notes require confirmation'),
+('A002', 'I002', 'U001', '2026-05-21', 'Restricted access', 'Recording contains family knowledge and should not be public'),
+('A003', 'I003', 'U004', '2026-05-22', 'Public release approved', 'Description and access conditions approved'),
+('A004', 'I004', 'U001', '2026-05-21', 'Continue review', 'Confirm whether item can be released with restricted access or must remain private.'),
+('A005', 'I005', 'U004', '2026-05-22', 'Keep private', 'Internal consultation material should remain private.'),
+('A006', 'I006', 'U004', '2026-05-22', 'Restricted access', 'Detailed place data requires approval before access.');
 
 -- --------------------------------------------------------
 
@@ -219,28 +212,6 @@ INSERT INTO `culturalmetadata` (`metadataID`, `itemID`, `ownership`, `accessLeve
 ('M007', 'I008', NULL, 'Under Assessment', NULL, NULL, NULL, NULL, NULL),
 ('M008', 'I009', NULL, 'Under Assessment', NULL, NULL, NULL, NULL, NULL);
 
--- --------------------------------------------------------
-
---
--- Table structure for table `reviewer`
---
-
-CREATE TABLE `reviewer` (
-  `reviewerID` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `userID` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `role` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `authorisationStatus` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `reviewer`
---
-
-INSERT INTO `reviewer` (`reviewerID`, `userID`, `role`, `authorisationStatus`) VALUES
-('R001', 'U001', 'Elder reviewer', 'Authorised'),
-('R002', 'U002', 'Library archivist', 'Authorised'),
-('R003', 'U003', 'Collection manager', 'Authorised'),
-('R004', 'U004', 'Community representative', 'Authorised');
 
 -- --------------------------------------------------------
 
@@ -274,7 +245,7 @@ INSERT INTO `roles` (`roleID`, `name`, `permissions`, `tasks`) VALUES
 
 CREATE TABLE `users` (
   `userID` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `permissions` varchar(2) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '1',
+  `roleID` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'R002',
   `preferred_title` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `name` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `email` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -285,14 +256,14 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`userID`, `permissions`, `preferred_title`, `name`, `email`, `passwordHash`) VALUES
-('U001', '15', 'Aunty', 'May Williams', 'may.williams@fnwa.org', NULL),
-('U002', '1', NULL, 'Daniel Brooks', 'd.brooks@fnwa.org', NULL),
-('U003', '7', NULL, 'Leah Morgan', 'leah.morgan@fnwa.org', NULL),
-('U004', '15', 'Uncle', 'Robert Evans', 'robert.evans@fnwa.org', NULL),
-('U005', '31', NULL, 'Wayne Stack', 'wayne@technetik.com.au', 'scrypt:32768:8:1$mU0g8vWcA2a9aQbZ$1700240d81081e5c7b20b04067aa2ef6e2bc514a0fcfc67b0e377a968ddc834800986fdd63b612a53a14b77833b35f54588ca84f616f6fb3a2f27a2d2d9dd86d'),
-('U006', '3', 'Uncle', 'Theodore Stack', 'here@there.com.au', 'scrypt:32768:8:1$4DXOjKGuBMImvRms$5dfa73e698985df9d4b972b66b88281c4e4a4ea960aa701c65490a45d480c6cd8dd486570dccf68880911679733b6719d8b6d1cddc811f593492d42a494d1e2f'),
-('U007', '15', 'Dr.', 'Charles Montgomery Stack', 'there@here.com', 'scrypt:32768:8:1$qqzgQJfLkRKfts7l$943096b5e0b361359c00c3570c67cc9ea4157e750ce30c420d9e1a25897bc369901c956fac1b5af54176a117ca9acb6863eab24a245a731a5d52ccd121e6da5b');
+INSERT INTO `users` (`userID`, `roleID`, `preferred_title`, `name`, `email`, `passwordHash`) VALUES
+('U001', 'R004', 'Aunty', 'May Williams', 'may.williams@fnwa.org', 'scrypt:32768:8:1$V5nXvzIOZpp4fKgb$8eaef9785ada516716a052299e62521202b4d5db18f9b568fd41d190e42bdca5fd8309bf83bf86384ea5c10f9af06db30de8e4294e0c3a6aad200ccfba2849c2'),
+('U002', 'R001', NULL, 'Daniel Brooks', 'd.brooks@fnwa.org', 'scrypt:32768:8:1$V5nXvzIOZpp4fKgb$8eaef9785ada516716a052299e62521202b4d5db18f9b568fd41d190e42bdca5fd8309bf83bf86384ea5c10f9af06db30de8e4294e0c3a6aad200ccfba2849c2'),
+('U003', 'R003', NULL, 'Leah Morgan', 'leah.morgan@fnwa.org', 'scrypt:32768:8:1$V5nXvzIOZpp4fKgb$8eaef9785ada516716a052299e62521202b4d5db18f9b568fd41d190e42bdca5fd8309bf83bf86384ea5c10f9af06db30de8e4294e0c3a6aad200ccfba2849c2'),
+('U004', 'R004', 'Uncle', 'Robert Evans', 'robert.evans@fnwa.org', 'scrypt:32768:8:1$V5nXvzIOZpp4fKgb$8eaef9785ada516716a052299e62521202b4d5db18f9b568fd41d190e42bdca5fd8309bf83bf86384ea5c10f9af06db30de8e4294e0c3a6aad200ccfba2849c2'),
+('U005', 'R005', NULL, 'Wayne Stack', 'wayne@technetik.com.au', 'scrypt:32768:8:1$mU0g8vWcA2a9aQbZ$1700240d81081e5c7b20b04067aa2ef6e2bc514a0fcfc67b0e377a968ddc834800986fdd63b612a53a14b77833b35f54588ca84f616f6fb3a2f27a2d2d9dd86d'),
+('U006', 'R002', 'Uncle', 'Theodore Stack', 'here@there.com.au', 'scrypt:32768:8:1$4DXOjKGuBMImvRms$5dfa73e698985df9d4b972b66b88281c4e4a4ea960aa701c65490a45d480c6cd8dd486570dccf68880911679733b6719d8b6d1cddc811f593492d42a494d1e2f'),
+('U007', 'R004', 'Dr.', 'Charles Montgomery Stack', 'there@here.com', 'scrypt:32768:8:1$qqzgQJfLkRKfts7l$943096b5e0b361359c00c3570c67cc9ea4157e750ce30c420d9e1a25897bc369901c956fac1b5af54176a117ca9acb6863eab24a245a731a5d52ccd121e6da5b');
 
 --
 -- Indexes for dumped tables
@@ -312,7 +283,7 @@ ALTER TABLE `accessrequest`
 ALTER TABLE `approval`
   ADD PRIMARY KEY (`approvalID`),
   ADD UNIQUE KEY `uq_approval_request` (`requestID`),
-  ADD KEY `idx_approval_reviewer` (`reviewerID`);
+  ADD KEY `idx_approval_user` (`userID`);
 
 --
 -- Indexes for table `assessmentcomment`
@@ -320,15 +291,14 @@ ALTER TABLE `approval`
 ALTER TABLE `assessmentcomment`
   ADD PRIMARY KEY (`commentID`),
   ADD KEY `idx_assessmentcomment_assessment` (`assessmentID`),
-  ADD KEY `idx_assessmentcomment_reviewer` (`reviewerID`);
+  ADD KEY `idx_assessmentcomment_user` (`userID`);
 
 --
 -- Indexes for table `assessmentrecord`
 --
 ALTER TABLE `assessmentrecord`
   ADD PRIMARY KEY (`assessmentID`),
-  ADD KEY `idx_assessmentrecord_item` (`itemID`),
-  ADD KEY `idx_assessmentrecord_reviewer` (`reviewerID`);
+  ADD KEY `idx_assessmentrecord_item` (`itemID`);
 
 --
 -- Indexes for table `collection`
@@ -353,13 +323,6 @@ ALTER TABLE `culturalmetadata`
   ADD PRIMARY KEY (`metadataID`),
   ADD UNIQUE KEY `uq_culturalmetadata_item` (`itemID`),
   ADD KEY `idx_culturalmetadata_access` (`accessLevel`);
-
---
--- Indexes for table `reviewer`
---
-ALTER TABLE `reviewer`
-  ADD PRIMARY KEY (`reviewerID`),
-  ADD KEY `userID_idx` (`userID`);
 
 --
 -- Indexes for table `roles`
@@ -387,25 +350,17 @@ ALTER TABLE `accessrequest`
   ADD CONSTRAINT `fk_accessrequest_item` FOREIGN KEY (`itemID`) REFERENCES `collectionitem` (`itemID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `approval`
---
-ALTER TABLE `approval`
-  ADD CONSTRAINT `fk_approval_request` FOREIGN KEY (`requestID`) REFERENCES `accessrequest` (`requestID`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_approval_reviewer` FOREIGN KEY (`reviewerID`) REFERENCES `reviewer` (`reviewerID`) ON UPDATE CASCADE;
-
---
 -- Constraints for table `assessmentcomment`
 --
 ALTER TABLE `assessmentcomment`
   ADD CONSTRAINT `fk_assessmentcomment_assessment` FOREIGN KEY (`assessmentID`) REFERENCES `assessmentrecord` (`assessmentID`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_assessmentcomment_reviewer` FOREIGN KEY (`reviewerID`) REFERENCES `reviewer` (`reviewerID`) ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_assessmentcomment_user` FOREIGN KEY (`userID`) REFERENCES `users` (`userID`) ON UPDATE CASCADE;
 
 --
 -- Constraints for table `assessmentrecord`
 --
 ALTER TABLE `assessmentrecord`
-  ADD CONSTRAINT `fk_assessmentrecord_item` FOREIGN KEY (`itemID`) REFERENCES `collectionitem` (`itemID`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_assessmentrecord_reviewer` FOREIGN KEY (`reviewerID`) REFERENCES `reviewer` (`reviewerID`) ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_assessmentrecord_item` FOREIGN KEY (`itemID`) REFERENCES `collectionitem` (`itemID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `collectionitem`

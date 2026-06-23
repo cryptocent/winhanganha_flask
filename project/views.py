@@ -46,7 +46,6 @@ from project.models import (
     update_user_permissions,
     verify_user_password,
     execute_assessment_updates,
-    get_reviewer_id_hack,
     get_pending_access_requests,
     get_access_request_by_id,
     execute_access_request,
@@ -174,28 +173,24 @@ def assessment_item(item_id):
                             request.form.get("cultural_notes"))
             flash("Metadata Updated", "success")   
         elif final_decision:
-            execute_assessment_updates(item_id, final_decision)
+            user_id = current_user.userID   
+            execute_assessment_updates(item_id, user_id, final_decision)
             flash("Assessment completed successfully", "success")
             return redirect(url_for("assessments"))   
         elif "submit_notes" in request.form:  
             assessment_row = fetch_assessment(item_id) 
-            reviewer = get_user_reviewer(current_user.userID)
-            print(reviewer)
-            print(assessment_row)
             note = request.form.get("discussion_note")
             date_added = date.today().strftime("%Y-%m-%d %H:%M:%S")  
             comment_id = next_id("assessmentcomment", "commentID", "AC")
-            #user_id = current_user.userID         
-            insert_assessment_comment(comment_id, assessment_row['assessment_id'],reviewer['reviewerID'], date_added, note)   
+            user_id = current_user.userID         
+            insert_assessment_comment(comment_id, assessment_row['assessment_id'], user_id, date_added, note)   
             flash("Note added", "success")        
         else:
             flash("No decision was selected.", "danger")
 
     assessment_row = fetch_assessment(item_id) 
-    print(assessment_row['assessment_id'])
-    assements_comments = fetch_assessment_comments(assessment_row['assessment_id'])
-    print(assements_comments)
-    return render_template("item_assessment.html", assessment=assessment_row, notes = assements_comments,
+    assessments_comments = fetch_assessment_comments(assessment_row['assessment_id'])
+    return render_template("item_assessment.html", assessment=assessment_row, notes = assessments_comments,
         form=form, item_id=item_id, final_decision=final_decision)
 
 
@@ -239,21 +234,21 @@ def login():
         password = form.password.data
         user_row = verify_user_password(email, password)        
         if user_row:
-            permission = fetch_role_by_permission(user_row["permissions"])
-            user = User(user_row["userID"], permission, user_row["preferred_title"], user_row["name"], user_row["email"])
+            permission = fetch_role_by_permission(user_row["userID"])
+            user = User(user_row["userID"], permission['roleID'], permission, user_row["preferred_title"], user_row["name"], user_row["email"])
             login_user(user)
 
             session["userID"] = user_row["userID"]
-            session["role"] = permission
+            session["role"] = permission["permissions"]
             session["preferred_title"] = user_row["preferred_title"]
             session["name"] = user_row["name"]
             session["email"] = user_row["email"]
 
-            reviewer_info = get_user_reviewer(user_row["userID"])
-            if reviewer_info:
-                session["authorisationStatus"] = reviewer_info["authorisationStatus"]
-                session["role"] = reviewer_info["role"]
-                session["reviewerID"] = reviewer_info["reviewerID"]
+            # reviewer_info = get_user_reviewer(user_row["userID"])
+            # if reviewer_info:
+            #     session["authorisationStatus"] = reviewer_info["authorisationStatus"]
+            #     session["role"] = reviewer_info["role"]
+            #     session["reviewerID"] = reviewer_info["reviewerID"]
 
             flash("Logged in successfully", "success")
             return redirect(url_for("account"))
@@ -351,7 +346,7 @@ def add_item():
         dataArray["item_id"] = next_id("CollectionItem", "itemID", "I")
         dataArray["meta_id"] = next_id("culturalmetadata", "metadataID", "M")
         dataArray["assessment_id"] = next_id("assessmentrecord", "assessmentID", "A")
-        dataArray["reviewer_id"] = get_reviewer_id_hack()[0]['reviewerID']  
+        #dataArray["reviewer_id"] = get_reviewer_id_hack()[0]['reviewerID']  
         dataArray["img_path"] = "img/placeholder.png"
         dataArray["record_path"] = None
 
