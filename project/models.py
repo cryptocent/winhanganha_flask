@@ -639,8 +639,8 @@ def get_pending_access_requests():
 
     access_request_rows = rows (
         """
-        with accessrequest as ( 
-            select 
+        with accessrequests as (
+            select
                 requestID,
                 itemID,
                 userID,
@@ -648,7 +648,7 @@ def get_pending_access_requests():
                 requestStatus,
                 purpose
             from accessrequest
-        ), requester as ( 
+        ), requestor as ( 
             select 
                 userID,
                 name,
@@ -661,6 +661,8 @@ def get_pending_access_requests():
                 title,
                 itemtype,
                 imagePath,
+                place,
+                languagegroup,
                 status
             from collectionitem
         ), collection as ( 
@@ -694,11 +696,11 @@ def get_pending_access_requests():
             m.metadataID as metadata_id,
             m.accessLevel as access_level,
             m.culturalSensitivity as cultural_sensitivity
-        from accessrequest a 
-        join requester r on a.userid = r.userid
+        from accessrequests a 
         join item i on a.itemID = i.itemID
         join collection c on c.collectionID = i.collectionID 
         join culturalmetadata m on m.itemID = i.itemID
+        join requestor r on r.userID = a.userID
         where a.requestStatus = 'Pending'
         """
     )
