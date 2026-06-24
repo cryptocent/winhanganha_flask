@@ -14,9 +14,10 @@ class Permission:
 #return User(user["userID"], permission["role"], permission["permissions"], user["preferred_title"], user["name"], user["email"])
 
 class User(UserMixin):
-    def __init__(self, userID, permissions, preferred_title, name, email):
+    def __init__(self, userID, roleID, permissions, preferred_title, name, email):
         self.id = str(userID)
         self.userID = userID
+        self.roleID = roleID
         self.role = permissions
         self.permissions = permissions["permissions"]
         self.preferred_title = preferred_title or ""
@@ -172,23 +173,26 @@ def fetch_role_by_name(role_name):
 
     return None
 
-def fetch_role_by_permission(permissions):
+def fetch_role_by_permission(roleID):
     result = row(
         """
         SELECT *
         FROM Roles
-        WHERE permissions = %s
+        WHERE roleID = %s
         """,
-        (permissions,)
+        (roleID,)
     )
     
     if result:
         return result
-
-    result["name"] = "Public"
-    result["permissions"] = 1
     
-    return result
+    return row(
+        """
+        SELECT *
+        FROM Roles
+        WHERE name = 'Public'
+        """
+    )
 
 def fetch_all_roles():
     return rows(
@@ -306,14 +310,11 @@ def fetch_assessment(item_id: str):
                cm.culturalSensitivity AS cultural_sensitivity,
                cm.culturalNotes AS cultural_notes,
                cm.accessConditions AS access_conditions,
-               cm.communityApprovalStatus AS community_approval,
-                u.name as user_name
+               cm.communityApprovalStatus AS community_approval
         FROM assessmentrecord a
         JOIN CollectionItem ci on ci.itemID = a.itemID
         JOIN Collection c ON c.collectionID = ci.collectionID
         JOIN CulturalMetadata cm ON cm.itemID = ci.itemID
-        join reviewer r on r.reviewerID = a.reviewerID
-        join users u on u.userID = r.userID
         WHERE ci.itemID = %s
         """,
         (item_id,),
@@ -404,10 +405,10 @@ def create_user(preferred_title, name, email, password):
     execute(
         """
         INSERT INTO Users
-        (userID, permissions, preferred_title, name, email, passwordHash)
+        (userID, roleID, preferred_title, name, email, passwordHash)
         VALUES (%s, %s, %s, %s, %s, %s)
         """,
-        (user_id, "1", preferred_title, name, email, password_hash),
+        (user_id, "R002", preferred_title, name, email, password_hash),
     )
     return user_id
 
@@ -415,7 +416,7 @@ def create_user(preferred_title, name, email, password):
 def get_user_by_email(email):
     return row(
         """
-        SELECT userID, permissions, preferred_title, name, email, passwordHash
+        SELECT userID, roleID, preferred_title, name, email, passwordHash
         FROM Users
         WHERE email = %s
         """,
@@ -426,7 +427,7 @@ def get_user_by_email(email):
 def get_user_by_id(userID):
     return row(
         """
-        SELECT userID, permissions, preferred_title, name, email, passwordHash
+        SELECT userID, roleID, preferred_title, name, email, passwordHash
         FROM Users
         WHERE userID = %s
         """,
@@ -476,13 +477,13 @@ def verify_user_password(email, password):
 @login_manager.user_loader
 def load_user(user_id):
     user = get_user_by_id(user_id)
-
+ 
     if user is None:
         return None
     
-    permission = fetch_role_by_permission(user["permissions"])
+    permission = fetch_role_by_permission(user["roleID"])
                #user["preferred_title"]
-    return  User(user["userID"], permission, user["preferred_title"], user["name"], user["email"])
+    return  User(user["userID"], user["roleID"], permission, user["preferred_title"], user["name"], user["email"])
 # lass User(UserMixin):
 #     def __init__(self, userID, permissions, preferred_title, name, email):
 
@@ -496,7 +497,7 @@ def load_users(userID = ''):
             u.name, 
             u.email
         FROM Users u
-        JOIN Roles r ON u.permissions = r.permissions
+        JOIN Roles r ON u.roleID = r.roleID
         WHERE userID != %s
         """,
         (userID,),
@@ -580,17 +581,17 @@ def add_new_item(array):
             (
                 assessmentID,
                 itemID,
-                reviewerID,
+
                 assessmentDate,
                 assessmentOutcome,
                 notes
             )
-            VALUES (%s, %s, %s,%s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s)
             """,
             (
                 array["assessment_id"],
                 array["item_id"],
-                array["reviewer_id"],
+
 		        array["date_added"],
                 "Under Review",
                 "Initial submission"
@@ -620,15 +621,12 @@ def get_assessment_rows():
                cm.communityApprovalStatus AS review_status,
                cm.culturalNotes AS cultural_notes,
                cm.accessConditions AS access_conditions,
-               ci.description AS public_description,
-				u.name as user_name
+               ci.description AS public_description
 
         from assessmentrecord  a             
         JOIN CollectionItem ci on ci.itemid = a.itemID
         JOIN Collection c ON c.collectionID = ci.collectionID
         JOIN CulturalMetadata cm ON cm.itemID = ci.itemID
-        join reviewer r on r.reviewerID = a.reviewerID
-        join users u on u.userID = r.userID
 		WHERE ci.status = 'Under Assessment'
         ORDER BY ci.itemID
         """
@@ -936,21 +934,22 @@ def get_reviewer_id_hack():
     return rows(
         """
         SELECT reviewerID
-        FROM REVIEWER 
+        FROM USERS 
         where role in ('Elder reviewer','Community representative','Collection manager')
         order by FIELD(role,'Elder reviewer','Collection manager','Community representative')
         LIMIT 1;
         """
     )
 
-def execute_assessment_updates(item_id, final_decision):
+# NOTE executed within a combined commit
+def execute_assessment_updates(item_id, user_id, final_decision):
     cur = mysql.connection.cursor()
     try:
         mapped_status = get_mapped_status(final_decision)
         if mapped_status is None:
             raise ValueError(f"Mapping failed! '{final_decision}' is not a valid LHS status option.")
-        assessment_query = "update assessmentrecord set assessmentoutcome = %s where itemid = %s" 
-        cur.execute(assessment_query, (final_decision, item_id))
+        assessment_query = "update assessmentrecord set assessmentoutcome = %s, userID = %s where itemid = %s" 
+        cur.execute(assessment_query, (final_decision, user_id, item_id))
         item_query = "update collectionitem set status = %s WHERE itemid = %s" 
         cur.execute(item_query, (mapped_status, item_id))        
         mysql.connection.commit()
@@ -1004,7 +1003,7 @@ def insert_assessment_comment(comment_id, assessment_id, user_id, date_time, com
         INSERT INTO assessmentcomment
             (commentID,
             assessmentID,
-            reviewerID,
+            userID,
             commentText,
             commentDate)
             VALUES
@@ -1020,15 +1019,10 @@ def fetch_assessment_comments(assessment_id):
         with comments as (
             select 
                 assessmentID as assessment_id,
-                reviewerID,
+                userID,
                 commentText as comment_text,
                 commentDate as comment_date
             from assessmentcomment
-        ), reviewers as (
-            select
-                reviewerID,
-                userID
-            from reviewer
         ), commentators as (
             select 
                 userID,
@@ -1041,8 +1035,7 @@ def fetch_assessment_comments(assessment_id):
             comment_text,
             comment_date
         from comments c
-        join reviewers r on r.reviewerID = c.reviewerID
-        join commentators co on r.userID = co.userID 
+        join commentators co on c.userID = co.userID 
         where assessment_id = %s
         """,
         (assessment_id,),        
