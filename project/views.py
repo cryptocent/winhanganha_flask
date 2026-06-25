@@ -51,7 +51,9 @@ from project.models import (
     execute_access_request,
     update_metadata,
     insert_assessment_comment,
-    fetch_assessment_comments
+    fetch_assessment_comments,
+    get_language_groups,
+    get_language_group_id_by_name
 )
 
 @app.errorhandler(403)
@@ -336,17 +338,18 @@ def add_item():
         dataArray["item_type"] = request.form.get("item_type")
         dataArray["record_format"] = request.form.get("record_format")
         dataArray["place"] = request.form.get("place")
-        dataArray["language_group"] = request.form.get("language_group")
+        language_name = request.form.get("language_group")
+        language_group = get_language_group_id_by_name(language_name)   
+        dataArray["language_group"] = language_group['languageGroupID']
         dataArray["collection_id"] = request.form.get("collection_id")
 
         file_record = request.files.get("file_record")
         collection_img = request.files.get("item_img")
-
+        dataArray["userID"] = current_user.userID
         dataArray["date_added"] = date.today().strftime("%Y-%m-%d")
         dataArray["item_id"] = next_id("CollectionItem", "itemID", "I")
         dataArray["meta_id"] = next_id("culturalmetadata", "metadataID", "M")
         dataArray["assessment_id"] = next_id("assessmentrecord", "assessmentID", "A")
-        #dataArray["reviewer_id"] = get_reviewer_id_hack()[0]['reviewerID']  
         dataArray["img_path"] = "img/placeholder.png"
         dataArray["record_path"] = None
 
@@ -382,8 +385,8 @@ def add_item():
 
         flash("Item could not be added.", "danger")
         return redirect(url_for("add_item"))
-
-    return render_template("item_add.html", collections=collections, form=form)
+    language_groups = get_language_groups()
+    return render_template("item_add.html", collections=collections, languages=language_groups, form=form)
 
 @app.route("/about")
 def about():

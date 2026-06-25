@@ -159,6 +159,7 @@ class Role:
 
 
 def fetch_role_by_name(role_name):
+    print(role_name)
     result = row(
         """
         SELECT *
@@ -263,7 +264,7 @@ def fetch_item(item_id: str):
                ci.description,
                ci.itemType AS item_type,
                ci.place,
-               ci.languageGroup AS language_group,
+               lg.languagename AS language_group,
                ci.status,
                ci.format,
                DATE_FORMAT(ci.dateAdded, '%%d %%M %%Y') AS date_added,
@@ -281,6 +282,7 @@ def fetch_item(item_id: str):
         FROM CollectionItem ci
         JOIN Collection c ON c.collectionID = ci.collectionID
         JOIN CulturalMetadata cm ON cm.itemID = ci.itemID
+        JOIN languagegroup lg on ci.languagegroupid = lg.languagegroupid
         WHERE ci.itemID = %s
         """,
         (item_id,),
@@ -296,7 +298,7 @@ def fetch_assessment(item_id: str):
                ci.description,
                ci.itemType AS item_type,
                ci.place,
-               ci.languageGroup AS language_group,
+               lg.languagename AS language_group,
                ci.status,
                ci.format,
                DATE_FORMAT(ci.dateAdded, '%%d %%M %%Y') AS date_added,
@@ -315,6 +317,7 @@ def fetch_assessment(item_id: str):
         JOIN CollectionItem ci on ci.itemID = a.itemID
         JOIN Collection c ON c.collectionID = ci.collectionID
         JOIN CulturalMetadata cm ON cm.itemID = ci.itemID
+        JOIN languagegroup lg on ci.languagegroupid = lg.languagegroupid
         WHERE ci.itemID = %s
         """,
         (item_id,),
@@ -532,7 +535,7 @@ def add_new_item(array):
                 description,
                 itemType,
                 place,
-                languageGroup,
+                languageGroupId,
                 status,
                 format,
                 imagePath,
@@ -581,17 +584,17 @@ def add_new_item(array):
             (
                 assessmentID,
                 itemID,
-
+                userID,
                 assessmentDate,
                 assessmentOutcome,
                 notes
             )
-            VALUES (%s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s, %s)
             """,
             (
                 array["assessment_id"],
                 array["item_id"],
-
+                array["userID"],
 		        array["date_added"],
                 "Under Review",
                 "Initial submission"
@@ -610,7 +613,7 @@ def get_assessment_rows():
                ci.description,
                ci.itemType AS item_type,
                ci.place,
-               ci.languageGroup AS language_group,
+               lg.languagename AS language_group,
                ci.status,
                ci.dateRecorded AS date_recorded,
                ci.imagePath AS image_filename,
@@ -627,6 +630,7 @@ def get_assessment_rows():
         JOIN CollectionItem ci on ci.itemid = a.itemID
         JOIN Collection c ON c.collectionID = ci.collectionID
         JOIN CulturalMetadata cm ON cm.itemID = ci.itemID
+        join languagegroup lg on ci.languagegroupid = lg.languagegroupid
 		WHERE ci.status = 'Under Assessment'
         ORDER BY ci.itemID
         """
@@ -662,7 +666,7 @@ def get_pending_access_requests():
                 itemtype,
                 imagePath,
                 place,
-                languagegroup,
+                languagegroupid,
                 status
             from collectionitem
         ), collection as ( 
@@ -734,7 +738,7 @@ def get_access_request_by_id(requestID):
                 itemtype,
                 imagePath,
                 place,
-                languagegroup,
+                languagegroupid,
                 status
             from collectionitem
         ), collection as ( 
@@ -749,6 +753,11 @@ def get_access_request_by_id(requestID):
                 accessLevel,
                 culturalSensitivity
             from culturalmetadata
+        ), langroup as ( 
+            select 
+                languagegroupid,
+                languagename
+            from languagegroup
         )
         select
             a.requestID as access_request_id,
@@ -764,7 +773,7 @@ def get_access_request_by_id(requestID):
             i.itemtype as item_type,
             i.imagepath as image_filename,
             i.place as place,
-            i.languagegroup as language_group,
+            i.languagename as language_group,
             i.collectionID as collection_id,
             c.collectionname as collection_name,
             m.metadataID as metadata_id,
@@ -775,6 +784,7 @@ def get_access_request_by_id(requestID):
         join item i on a.itemID = i.itemID
         join collection c on c.collectionID = i.collectionID 
         join culturalmetadata m on m.itemID = i.itemID
+        join langgroup lg on i.languagegroupid = lg.languagegroupid
         where a.requestID = %s
         """,
         (requestID,),
@@ -842,7 +852,7 @@ def fetch_filtered_items(filters):
                ci.description,
                ci.itemType AS item_type,
                ci.place,
-               ci.languageGroup AS language_group,
+               lg.languagename AS language_group,
                ci.status,
                ci.imagePath AS image_filename,
                c.collectionName AS collection_name,
@@ -852,6 +862,7 @@ def fetch_filtered_items(filters):
         FROM CollectionItem ci
         JOIN Collection c ON c.collectionID = ci.collectionID
         JOIN CulturalMetadata cm ON cm.itemID = ci.itemID
+        join languagegroup lg on ci.languagegroupid = lg.languagegroupid
         WHERE ci.status != 'Under Assessment'
     """
 
@@ -1042,3 +1053,29 @@ def fetch_assessment_comments(assessment_id):
         """,
         (assessment_id,),        
     )    
+
+
+def get_language_groups():
+    return rows(
+       """
+       select 
+       languageGroupID, 
+       languageName 
+       
+       from languagegroup 
+       
+       order by languagename asc
+       """ 
+    )
+
+def get_language_group_id_by_name(name):
+    return row(
+       """
+       select 
+       languageGroupID
+       from languagegroup 
+       
+       where languageName = %s
+        """,
+        (name,),   
+    )
