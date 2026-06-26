@@ -1,8 +1,9 @@
 body {
-  padding-top: 55px;
+  padding-top: 90px;
 }
 
 .custom-jumbotron {
+  margin-top: 52px;
   background-image: linear-gradient(rgba(0, 0, 0, 0.68), rgba(0, 0, 0, 0.68)), url('../img/artwall.jpg');
   background-size: cover;
   background-position: center center;

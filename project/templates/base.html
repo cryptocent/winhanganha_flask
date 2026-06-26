@@ -13,12 +13,27 @@
 
 <body id="top">
 
-<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
-  <div class="container-fluid">
+<!-- ========== TOP UTILITY BAR ========== -->
+<div class="bg-dark py-3 fixed-top border-bottom border-secondary">
+  <div class="container h-100 d-flex justify-content-end align-items-center">
+    <ul class="navbar-nav flex-row gap-3">
+      <a class="text-white text-decoration-none me-3" href="{{ url_for('home') }}">Home</a>
+      <a class="text-white text-decoration-none me-3" href="{{ url_for('items') }}">Archive</a>
+      <a class="text-white text-decoration-none me-3" href="{{ url_for('about') }}">About</a>
+      <a class="text-white text-decoration-none me-3" href="{{ url_for('home') }}#cultural-protocols">Cultural Protocols</a>
+      <a class="text-white text-decoration-none me-3" href="{{ url_for('contact') }}">Contact</a>
+  </div>
+</div>  
+
+<!-- ========== MAIN NAV BAR ========== -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top" style="top:52px;">
+  <div class="container">
+
+     <!-- Brand / Logo -->
     <a class="navbar-brand" href="{{ url_for('home') }}">
       First Nations Winhanganha Archive
     </a>
-
+    <!-- Mobile toggle button -->
     <button 
       class="navbar-toggler" 
       type="button" 
@@ -30,64 +45,45 @@
     >
       <span class="navbar-toggler-icon"></span>
     </button>
-
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav ms-auto">
-        <li class="nav-item">
-          <a class="nav-link {% if request.endpoint == 'home' %}active{% endif %}" href="{{ url_for('home') }}">
-            Home
-          </a>
-        </li>
 
-        <li class="nav-item">
-          <a class="nav-link {% if request.endpoint == 'items' %}active{% endif %}" href="{{ url_for('items') }}">
-            Archive
-          </a>
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('about') }}">About</a>
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('home') }}#cultural-protocols">
-            Cultural Protocols
-          </a>
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('contact') }}">Contact</a>
-        </li>
-		  {% if current_user.is_authenticated and current_user.can(Permission.ARCHIVIST) %}
-		  <li class="nav-item">
-          <a class="nav-link {% if request.endpoint == 'assessment' %}active{% endif %}" href="{{ url_for('assessments') }}">
-            Assessment Portal
-          </a>
-        </li>
-        {% endif %}
+        <!-- USER DROPDOWN (logged in) / LOGIN + REGISTER (logged out)  -->
         {% if current_user.is_authenticated %}
-          <li class="nav-item">
-            <a class="nav-link {% if request.endpoint == 'account' %}active{% endif %}" href="{{ url_for('account') }}">
-              Account
-            </a>
-          </li>
-
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('logout') }}">
-              Logout
-            </a>
-          </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            {{ current_user.preferred_title }} {{current_user.name }}
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+            <li>
+              <a class="dropdown-item" href="{{ url_for('account') }}">Account</a>
+            </li>
+            {% if current_user.can(Permission.ARCHIVIST) %}
+            <li>
+              <a class="dropdown-item" href="{{ url_for('add_item') }}">Add item to collection</a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="{{ url_for('assessments') }}">Assessment Portal</a>
+            </li>
+            {% endif %}
+            {% if current_user.is_administrator() %}
+            <li>
+              <a class="dropdown-item" href="{{ url_for('dashboard') }}">Admin Dashboard</a>
+            </li>
+            {% endif %}
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a>
+            </li>
+          </ul>
+        </li>
         {% else %}
-          <li class="nav-item">
-            <a class="nav-link {% if request.endpoint == 'login' %}active{% endif %}" href="{{ url_for('login') }}">
-              Login
-            </a>
+        <!--  LOGIN + REGISTER  -->
+        <li class="nav-item">
+          <a class="nav-link {% if request.endpoint == 'login' %}active{% endif %}" href="{{ url_for('login') }}">Login</a>
           </li>
-
           <li class="nav-item">
-            <a class="nav-link {% if request.endpoint == 'register' %}active{% endif %}" href="{{ url_for('register') }}">
-              Register
-            </a>
+            <a class="nav-link {% if request.endpoint == 'register' %}active{% endif %}" href="{{ url_for('register')}}">Register</a>
           </li>
         {% endif %}
       </ul>
