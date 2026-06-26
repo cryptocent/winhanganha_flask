@@ -1059,7 +1059,7 @@ def update_item(item_id, title, description, item_type, place, language_group, i
         description = %s,
         itemType = %s,
         place = %s,
-        languageGroup = %s,
+        languageGroupId = %s,
         format = %s,
         dateRecorded = %s
     WHERE itemID = %s
