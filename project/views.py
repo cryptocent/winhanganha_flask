@@ -171,6 +171,9 @@ def assessment_item(item_id):
                             request.form.get("cultural_notes"))
             flash("Metadata Updated", "success")   
         elif final_decision:
+            if not current_user.can(Permission.REVIEWER):
+                flash("You do not have permission to submit a final decision.", "danger")
+                return redirect(url_for("assessment_item", item_id=item_id))
             user_id = current_user.userID   
             execute_assessment_updates(item_id, user_id, final_decision)
             flash("Assessment completed successfully", "success")
