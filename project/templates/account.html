@@ -88,7 +88,7 @@
           </li>
         {% endif %}
 
-        {% if current_user.can(Permission.REVIEWER) %}
+        {% if current_user.can(Permission.ARCHIVIST) %}
           <li>
             <a class="dropdown-item" href="{{ url_for('assessments') }}">
               Assessment Portal

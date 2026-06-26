@@ -51,7 +51,9 @@ from project.models import (
     execute_access_request,
     update_metadata,
     insert_assessment_comment,
-    fetch_assessment_comments
+    fetch_assessment_comments,
+    update_item,
+    delete_item
 )
 
 @app.errorhandler(403)
@@ -113,7 +115,7 @@ def item_detail(item_id):
             flash("You must be logged in to view this item.", "warning")
             return redirect(url_for("login"))
 
-        if not current_user.can(Permission.REVIEWER):
+        if not current_user.can(Permission.ARCHIVIST):
             abort(403)
 
     requirements = get_item_metadata(item_id)
@@ -146,19 +148,15 @@ def item_detail(item_id):
 
 @app.route("/item-assessments", methods=["GET", "POST"])
 @login_required
-@permission_required(Permission.REVIEWER)
+@permission_required(Permission.ARCHIVIST)
 def assessments():
     assessment_rows = get_assessment_rows()
     access_request_rows = get_pending_access_requests()  
     return render_template("item_assessment_list.html", assessments=assessment_rows, access_requests = access_request_rows)
 
-
-
-
-
 @app.route("/item-assessment/<item_id>", methods=["GET", "POST"])
 @login_required
-@permission_required(Permission.REVIEWER)
+@permission_required(Permission.ARCHIVIST)
 def assessment_item(item_id):
     form = AssessmentForm(request.form)
     final_decision = None 
@@ -207,10 +205,6 @@ def access_request(access_request_id):
     return render_template("access_request.html", access_request=access_request_row, 
         form=form, access_request_id=access_request_id)
 
-
-
-
-
 @app.route("/register", methods=["GET", "POST"])
 def register():
     form = RegistrationForm(request.form)
@@ -234,7 +228,7 @@ def login():
         password = form.password.data
         user_row = verify_user_password(email, password)        
         if user_row:
-            permission = fetch_role_by_permission(user_row["userID"])
+            permission = fetch_role_by_permission(user_row["roleID"])
             user = User(user_row["userID"], permission['roleID'], permission, user_row["preferred_title"], user_row["name"], user_row["email"])
             login_user(user)
 
@@ -346,7 +340,8 @@ def add_item():
         dataArray["item_id"] = next_id("CollectionItem", "itemID", "I")
         dataArray["meta_id"] = next_id("culturalmetadata", "metadataID", "M")
         dataArray["assessment_id"] = next_id("assessmentrecord", "assessmentID", "A")
-        #dataArray["reviewer_id"] = get_reviewer_id_hack()[0]['reviewerID']  
+        #dataArray["reviewer_id"] = get_reviewer_id_hack()[0]['reviewerID']
+        dataArray["user_id"] = current_user.userID  
         dataArray["img_path"] = "img/placeholder.png"
         dataArray["record_path"] = None
 
@@ -397,3 +392,28 @@ def contact():
         flash("Thanks for your message, we'll be in touch soon.", "success")
         return redirect(url_for("contact"))
     return render_template("contact.html", form=form)
+
+@app.route("/item/<item_id>/update", methods=["POST"])
+@login_required
+@permission_required(Permission.ARCHIVIST)
+def update_item_details(item_id):
+    update_item(
+        item_id,
+        request.form.get("title"),
+        request.form.get("description"),
+        request.form.get("item_type"),
+        request.form.get("place"),
+        request.form.get("language_group"),
+        request.form.get("item_format"),
+        request.form.get("date_recorded"),
+        )
+    flash("Item details updated successfully.", "success")
+    return redirect(url_for("assessment_item", item_id=item_id))
+
+@app.route("/item/<item_id>/delete", methods=["POST"])
+@login_required
+@is_administrator
+def delete_item_route(item_id):
+    delete_item(item_id)
+    flash("Item deleted successfully.", "success")
+    return redirect(url_for("assessments"))

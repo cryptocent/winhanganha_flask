@@ -579,17 +579,17 @@ def add_new_item(array):
             (
                 assessmentID,
                 itemID,
-
+                userID,
                 assessmentDate,
                 assessmentOutcome,
                 notes
             )
-            VALUES (%s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s, %s)
             """,
             (
                 array["assessment_id"],
                 array["item_id"],
-
+                array["user_id"],
 		        array["date_added"],
                 "Under Review",
                 "Initial submission"
@@ -794,7 +794,7 @@ def get_featured_items():
         JOIN Collection c ON c.collectionID = ci.collectionID
         JOIN CulturalMetadata cm ON cm.itemID = ci.itemID
         WHERE cm.accessLevel = 'Public'
-          AND cm.communityApprovalStatus = 'Approved'
+          AND cm.communityApprovalStatus = 'Approved for public release'
         ORDER BY ci.itemID
         LIMIT 3
         """
@@ -1039,4 +1039,28 @@ def fetch_assessment_comments(assessment_id):
         where assessment_id = %s
         """,
         (assessment_id,),        
-    )    
+    )
+
+def update_item(item_id, title, description, item_type, place, language_group, item_format, date_recorded):
+    execute(
+        """
+    UPDATE collectionitem
+    SET title =%s,
+        description = %s,
+        itemType = %s,
+        place = %s,
+        languageGroup = %s,
+        format = %s,
+        dateRecorded = %s
+    WHERE itemID = %s
+    """,
+    (title, description, item_type, place, language_group, item_format, date_recorded, item_id),
+    )
+def delete_item(item_id):
+    execute(
+        """
+    DELETE FROM collectionitem
+    WHERE itemID = %s
+    """,
+    (item_id,),
+    )
