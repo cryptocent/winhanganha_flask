@@ -159,7 +159,6 @@ class Role:
 
 
 def fetch_role_by_name(role_name):
-    print(role_name)
     result = row(
         """
         SELECT *
