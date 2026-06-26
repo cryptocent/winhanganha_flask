@@ -58,7 +58,7 @@
         <li class="nav-item">
           <a class="nav-link" href="{{ url_for('contact') }}">Contact</a>
         </li>
-		  {% if current_user.is_authenticated and current_user.can(Permission.REVIEWER) %}
+		  {% if current_user.is_authenticated and current_user.can(Permission.ARCHIVIST) %}
 		  <li class="nav-item">
           <a class="nav-link {% if request.endpoint == 'assessment' %}active{% endif %}" href="{{ url_for('assessments') }}">
             Assessment Portal
