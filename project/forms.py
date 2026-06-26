@@ -131,7 +131,7 @@ class AddItemForm(Form):
     ]
 )
     place = StringField("Place")
-    language_group = TextAreaField("Language Group/Nation")
+    language_group = StringField("Language Group")
     file_record = FileField("Item File", [DataRequired()])
     item_img = FileField("Collection Item Image")
     submit = SubmitField("Submit Item")
