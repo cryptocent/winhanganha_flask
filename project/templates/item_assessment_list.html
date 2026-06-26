@@ -115,7 +115,7 @@
                               
 
                   <td>
-                    {% if current_user.is_authenticated and current_user.can(Permission.REVIEWER) %}
+                    {% if current_user.is_authenticated and current_user.can(Permission.ARCHIVIST) %}
                    <a
                       href="{{ url_for('assessment_item', item_id=assessment.item_id) }}"
                       class="btn btn-sm btn-primary mybutton mb-1"
