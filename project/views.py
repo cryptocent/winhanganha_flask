@@ -8,6 +8,7 @@ from wtforms import form
 from pathlib import Path
 from uuid import uuid4
 from werkzeug.utils import secure_filename
+import MySQLdb
 from project import ALLOWED_EXTENSIONS, ALLOWED_IMG_EXTENSIONS, app
 from project.decorators import permission_required, is_administrator
 from project.forms import LoginForm, MetadataForm, RegistrationForm, AccessRequestForm, AddItemForm, CancelUserRequest, AssessmentForm, AccessRequestDecisionForm, ContactForm
@@ -71,6 +72,9 @@ def page_not_found(e):
 def internal_error(e):
     return render_template("500.html"), 500
 
+@app.errorhandler(MySQLdb.Error)
+def internal_error(e):
+    return render_template("500.html"), 500
 
 @app.route("/")
 def home():

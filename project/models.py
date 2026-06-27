@@ -1036,12 +1036,14 @@ def fetch_assessment_comments(assessment_id):
         ), commentators as (
             select 
                 userID,
-                name
+                name,
+                preferred_title
             from users 
         )  
         select 
             assessment_id,
             name as user_name,
+            preferred_title,
             comment_text,
             comment_date
         from comments c

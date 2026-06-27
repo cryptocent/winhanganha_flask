@@ -43,8 +43,7 @@
                 <th>Type</th>
                 <th>Language Group</th>
                 <th>Place</th>
-                <th>Current Access</th>
-                <th>Recommended Access</th>
+                <th>Metadata Access</th>
                 <th>Sensitivity</th>
                 <th>Review Status</th>   
                 <th>Action</th>
@@ -84,11 +83,6 @@
                   <td>
                     {{ assessment.access_level }}
                   </td>
-
-                  <td>
-                    {{ assessment.recommended_access_level }}
-                  </td>
-
                   <td>
                     {% if assessment.cultural_sensitivity %}
                       <!-- <span class="badge bg-danger"> -->
@@ -104,11 +98,11 @@
                   <td>
                     {% if assessment.review_status %}
                       <!-- <span class="badge bg-warning text-dark"> -->
-                        {{ assessment.review_status }}
+                        <b> {{ assessment.review_status }} </b>
                       <!-- </span> -->
                     {% else %}
                       <!-- <span class="badge bg-secondary"> -->
-                        Pending
+                        <b> Pending </b>
                       <!-- </span> -->
                     {% endif %}
                   </td>

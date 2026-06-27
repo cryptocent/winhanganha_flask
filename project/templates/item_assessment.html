@@ -49,13 +49,7 @@
             <li><strong>Item type:</strong> {{ assessment.item_type }}</li>
             <li><strong>Language group:</strong> {{ assessment.language_group }}</li>
             <li><strong>Place:</strong> {{ assessment.place }}</li>
-            <li><strong>Date recorded:</strong> {{ assessment.date_recorded }}</li>
-            <li><strong>Current access:</strong> {{ access_badge(assessment.access_level) }}</li>
-            <li><strong>Current review status:</strong> {{ assessment.community_approval }}</li>
-            <li>
-              <strong>Sensitivity level:</strong>
-              <span class="badge bg-danger">{{ assessment.cultural_sensitivity }} cultural sensitivity</span>
-            </li>
+            <!-- <li><strong>Current review status:</strong> {{ assessment.community_approval }}</li> -->
           </ul>
 
           <!-- Action buttons -->
@@ -80,11 +74,24 @@
     <!-- Right column: assessment summary panel -->
     <div class="col-lg-5">
       <h2>Assessment Summary</h2>
-
+      <p><br><br></p>
       <div class="restricted-panel">
         <p>
-          <span class="assessment-label">Assigned reviewers:</span><br>
+          <span class="assessment-label">Item classification decision:</span><br>
+          <span class="badge text-bg-info">{{ assessment.status }}</span>
         </p>
+        <p>
+          <span class="assessment-label">Current metadata approval:</span><br>
+          <span class="badge text-bg-dark">{{ assessment.community_approval }}</span>
+        </p>
+        <p>
+          <span class="assessment-label">Current metadata access:</span><br>
+          <span class="badge text-bg-dark">{{ assessment.access_level }}</span>
+        </p>
+        <p>
+          <span class="assessment-label">Sensitivity level:</span><br>
+          <span class="badge bg-danger">{{ assessment.cultural_sensitivity }} cultural sensitivity</span>
+        </p>        
         <p>
           <span class="assessment-label">Assessment created:</span><br>
           {{ assessment.date_added }}
@@ -165,7 +172,7 @@
             <div class="col-md-4">
               <label for="accessDecision" class="form-label">Access level</label>
               <select class="form-select" id="accessDecision" name="access_level">
-                {% for option in ['', 'Under Assessment', 'Public', 'Restricted', 'Private'] %}
+                {% for option in ['', 'Under Review', 'Public', 'Restricted', 'Private'] %}
                 <option value="{{ option }}" {% if option==assessment.access_level %}selected{% endif %}>
                   {{ option }}
                 </option>
@@ -187,7 +194,7 @@
             <div class="col-md-4">
               <label for="approvalStatus" class="form-label">Approval status</label>
               <select class="form-select" id="approvalStatus" name="community_approval">
-                {% for option in ['', 'Awaiting Elder review', 'Approved for public release', 'Approved with restrictions', 'Not approved for public release'] %}
+                {% for option in ['', 'Awaiting review', 'Approved for public release', 'Approved with restrictions', 'Not approved for public release'] %}
                 <option value="{{ option }}" {% if option==assessment.community_approval %}selected{% endif %}>
                   {{ option }}
                 </option>
@@ -222,7 +229,7 @@
       <button class="accordion-button {% if not is_approved %}collapsed{% endif %}" type="button"
         data-bs-toggle="collapse" data-bs-target="#collapseTwo"
         aria-expanded="{% if is_approved %}true{% else %}false{% endif %}" {% if not is_approved %}disabled{% endif %}>
-        Item Classification Decision
+        Item Classification Decision {% if not is_approved %} | <b>&nbsp;Note: cultural metadata access to be completed first. </b> {% endif %}
       </button>
     </h2>
     
@@ -259,7 +266,7 @@
       {% for note in notes %}
       <li class="list-group-item">
         <p class="mb-1">
-          <strong>{{ note.user_name }}</strong>
+          <strong>{% if note.preferred_title %}{{ note.preferred_title }}&nbsp;{% endif %}{{ note.user_name }}</strong>
           <span class="text-muted"> commented on {{ note.comment_date }}: </span>
         </p>
         <p class="mb-0">{{ note.comment_text }}</p>
