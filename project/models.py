@@ -1,11 +1,12 @@
 from functools import wraps
 from datetime import date
-from flask import session, redirect, url_for, flash, g
+from flask import session, redirect, url_for, flash, g, abort
 from werkzeug.local import LocalProxy
 from werkzeug.security import check_password_hash, generate_password_hash
-from werkzeug.utils import secure_filename
-from project import ALLOWED_EXTENSIONS, ALLOWED_IMG_EXTENSIONS, mysql
+from project import mysql
 
+
+#set up permission values
 class Permission:
         PUBLIC = 1
         USER = 2
@@ -13,8 +14,7 @@ class Permission:
         REVIEWER = 8        
         ADMINISTRATOR = 16
 
-#return User(user["userID"], permission["role"], permission["permissions"], user["preferred_title"], user["name"], user["email"])
-
+#user class
 class User:
     def __init__(self, userID, roleID, permissions, preferred_title, name, email):
         self.id = str(userID)
@@ -36,6 +36,7 @@ class User:
     def is_administrator(self):
         return self.can(Permission.ADMINISTRATOR)
 
+#anonymous user class
 class AnonymousUser:
     is_authenticated = False
     id = None
@@ -56,19 +57,22 @@ class AnonymousUser:
 def _get_current_user():
     return getattr(g, "current_user", AnonymousUser())
 
-
+#allows use of current_user for user
 current_user = LocalProxy(_get_current_user)
+
 
 
 def login_user(user):
     session["user_id"] = user.userID
     session["userID"] = user.userID
+    g.current_user = user
 
 
 def logout_user():
     session.clear()
+    g.current_user = AnonymousUser()
 
-
+# wrapper for access control 
 def login_required(view):
     @wraps(view)
     def wrapped_view(*args, **kwargs):
@@ -79,7 +83,14 @@ def login_required(view):
         return view(*args, **kwargs)
 
     return wrapped_view
-      
+
+#role permissions class    
+# Role definitions
+# Public: Can view public items (permission 1)
+# User: Can view public items and request access to restricted items (permissions 1 + 2 = 3)
+# Archivist: Can view and edit all items can not approve access requests or change access levels (permissions 1 + 2 + 4 = 7)
+# Reviewer: Can view and review items (permissions 1 + 2 + 8 = 11)
+# Administrator: Can manage all aspects of the system (permissions 1 + 2 + 4 + 8 + 16 = 31)  
 class Role:
     def __init__(self, name, permissions=Permission.PUBLIC):
         self.name = name
@@ -180,13 +191,7 @@ class Role:
                 )
         
         
-# Role definitions
-# Public: Can view public items (permission 1)
-# User: Can view public items and request access to restricted items (permissions 1 + 2 = 3)
-# Archivist: Can view and edit all items can not approve access requests or change access levels (permissions 1 + 2 + 4 = 7)
-# Reviewer: Can view and review items (permissions 1 + 2 + 8 = 11)
-# Administrator: Can manage all aspects of the system (permissions 1 + 2 + 4 + 8 + 16 = 31)
-
+# fetches role by role name
 def fetch_role_by_name(role_name):
     result = row(
         """
@@ -202,6 +207,7 @@ def fetch_role_by_name(role_name):
 
     return None
 
+#fetched role by permission value
 def fetch_role_by_permission(roleID):
     result = row(
         """
@@ -223,6 +229,7 @@ def fetch_role_by_permission(roleID):
         """
     )
 
+#fetches all roles
 def fetch_all_roles():
     return rows(
         """
@@ -231,7 +238,7 @@ def fetch_all_roles():
         """
     )
 
-
+#mysql helper function to retreive rows
 def rows(sql, params=None):
     cur = mysql.connection.cursor()
     try:
@@ -240,7 +247,7 @@ def rows(sql, params=None):
     finally:
         cur.close()
 
-
+#mysql helper function to retreive single row
 def row(sql, params=None):
     cur = mysql.connection.cursor()
     try:
@@ -249,7 +256,7 @@ def row(sql, params=None):
     finally:
         cur.close()
 
-
+#mysql helper function to execute query (insert, update, delete)
 def execute(sql, params=None):
     cur = mysql.connection.cursor()
     try:
@@ -262,7 +269,7 @@ def execute(sql, params=None):
     finally:
         cur.close()
 
-
+#gets the next id from table for use in adding records to table
 def next_id(table_name: str, id_column: str, prefix: str, width: int = 3) -> str:
     current = row(
         f"SELECT MAX(CAST(SUBSTRING({id_column}, %s) AS UNSIGNED)) AS max_num FROM {table_name}",
@@ -271,7 +278,7 @@ def next_id(table_name: str, id_column: str, prefix: str, width: int = 3) -> str
     max_num = current["max_num"] or 0
     return f"{prefix}{max_num + 1:0{width}d}"
 
-
+#gets all collections from collection table
 def fetch_collections():
     return rows(
         """
@@ -283,7 +290,7 @@ def fetch_collections():
         """
     )
 
-
+#gets item details by item id
 def fetch_item(item_id: str):
     return row(
         """
@@ -316,6 +323,7 @@ def fetch_item(item_id: str):
         (item_id,),
     )
 
+#gets assessment record for item id
 def fetch_assessment(item_id: str):
     return row(
         """
@@ -351,6 +359,7 @@ def fetch_assessment(item_id: str):
         (item_id,),
     )
 
+#gets current item status
 def fetch_item_status(item_id: str):
     return row(
         """
@@ -362,6 +371,7 @@ def fetch_item_status(item_id: str):
         (item_id,),
     )
 
+#gets all user access requests for a user 
 def fetch_user_requests(user_id):
     return rows(
         """
@@ -384,7 +394,8 @@ def fetch_user_requests(user_id):
         """,
         (user_id,),
     )
-    
+
+#gets single access request for user and item id     
 def fetch_user_request(user_id, item_id):
     return row(
         """
@@ -408,6 +419,7 @@ def fetch_user_request(user_id, item_id):
         (user_id,item_id,),
     )
 
+#gets user access request by request ID 
 def fetch_user_request_by_ID(user_id, request_id):
     return row(
         """
@@ -421,6 +433,7 @@ def fetch_user_request_by_ID(user_id, request_id):
         (user_id,request_id,),
     )
 
+#cancels a user access request
 def cancel_user_request(request_id):
     execute(
         """
@@ -429,7 +442,7 @@ def cancel_user_request(request_id):
     )
     return True
 
-
+#creates new user
 def create_user(preferred_title, name, email, password):
     password_hash = generate_password_hash(password)
     user_id = next_id("Users", "userID", "U")
@@ -443,7 +456,7 @@ def create_user(preferred_title, name, email, password):
     )
     return user_id
 
-
+#gets user details by email address
 def get_user_by_email(email):
     return row(
         """
@@ -454,7 +467,7 @@ def get_user_by_email(email):
         (email,),
     )
 
-
+#gets user by user id
 def get_user_by_id(userID):
     return row(
         """
@@ -465,7 +478,7 @@ def get_user_by_id(userID):
         (userID,),
     )
 
-
+#not used
 def get_user_reviewer(userID):
     return row(
         """
@@ -477,7 +490,8 @@ def get_user_reviewer(userID):
         """,
         (userID,),
     )
-
+    
+#not used
 def get_elder_reviewer_id():
     return row(
         """
@@ -490,6 +504,7 @@ def get_elder_reviewer_id():
         ("Elder reviewer",),
     )
 
+#checks password has been entered correctly
 def verify_user_password(email, password):
     user = get_user_by_email(email)
 
@@ -501,7 +516,7 @@ def verify_user_password(email, password):
 
     return None
 
-
+#loads user by user id (login) 
 def load_user(user_id):
     user = get_user_by_id(user_id)
  
@@ -512,7 +527,7 @@ def load_user(user_id):
 
     return  User(user["userID"], user["roleID"], permission, user["preferred_title"], user["name"], user["email"])
 
-
+#admin loads users except the current user
 def load_users(userID):
     users = rows(
         """
@@ -531,10 +546,15 @@ def load_users(userID):
     )
     return users
 
-def allowed_file(filename, allowed_extensions=ALLOWED_EXTENSIONS):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in allowed_extensions
+#checks the file extension is in the allowed extensions 
+def allowed_file(filename, allowed_extensions):
+    if not filename or "." not in filename:
+        return False
 
+    extension = filename.rsplit(".", 1)[1].lower()
+    return extension in allowed_extensions
+
+#admin updates user permissions
 def update_user_permissions(role,user_id):
     update_permission = execute(
         """
@@ -547,7 +567,7 @@ def update_user_permissions(role,user_id):
 
     return update_permission == 1
  
-
+#insert new item
 def add_new_item(array):
      item_insert = execute(
             """
@@ -627,6 +647,7 @@ def add_new_item(array):
 
      return item_insert == 1 and meta_insert == 1 and assessment_record_insert == 1
 
+#gets items that require assessment
 def get_assessment_rows():
 
      assessment_rows = rows(
@@ -662,7 +683,7 @@ def get_assessment_rows():
     
      return assessment_rows
 
-
+#admin gets access requests
 def get_pending_access_requests():
 
     access_request_rows = rows (
@@ -734,7 +755,7 @@ def get_pending_access_requests():
     )
     return access_request_rows
 
-
+#gets access requests by the id 
 def get_access_request_by_id(requestID):
 
     return row (
@@ -814,7 +835,7 @@ def get_access_request_by_id(requestID):
         (requestID,),
     )
 
-
+#gets featured items for the home page (public items approved)
 def get_featured_items():
     featured_items = rows(
         """
@@ -837,6 +858,7 @@ def get_featured_items():
     )
     return featured_items
 
+#gets an items metadata
 def get_item_metadata(item_id):
     requirements = rows(
         """
@@ -850,7 +872,7 @@ def get_item_metadata(item_id):
 
     return requirements
 
-
+#user item access request
 def submit_access_request(request_array):
     today = date.today()
     execute(
@@ -868,7 +890,7 @@ def submit_access_request(request_array):
                 request_array["full_purpose"],
             ),
         ) 
-
+#filtered items by filter
 def fetch_filtered_items(filters):
     sql = """
         SELECT ci.itemID AS item_id,
@@ -1008,7 +1030,7 @@ def get_mapped_status(status_string):
 
     return status_mapping.get(status_string, None)
 
-
+#allow deny access request
 def execute_access_request(access_request_id, final_decision):
     execute(
         """
@@ -1019,6 +1041,7 @@ def execute_access_request(access_request_id, final_decision):
         (final_decision, access_request_id)
     )
 
+#updates metadata
 def update_metadata(metadata_id, access_level, cultural_sensitivity, community_approval_status, access_conditions, cultural_notes):
     execute(
         """
@@ -1033,7 +1056,7 @@ def update_metadata(metadata_id, access_level, cultural_sensitivity, community_a
         (access_level, cultural_sensitivity, community_approval_status, access_conditions, cultural_notes, metadata_id)        
     )
 
-
+#inserts comment for item assessment
 def insert_assessment_comment(comment_id, assessment_id, user_id, date_time, comment):
     execute(
         """
@@ -1049,7 +1072,7 @@ def insert_assessment_comment(comment_id, assessment_id, user_id, date_time, com
         (comment_id, assessment_id, user_id, comment, date_time )        
     )
 
-
+#gets assessment comments for assessment item
 def fetch_assessment_comments(assessment_id):
     return rows(
         """
@@ -1080,6 +1103,7 @@ def fetch_assessment_comments(assessment_id):
         (assessment_id,),        
     )
 
+#updates item details  
 def update_item(item_id, title, description, item_type, place, language_group, item_format, date_recorded):
     execute(
         """
@@ -1095,6 +1119,8 @@ def update_item(item_id, title, description, item_type, place, language_group, i
     """,
     (title, description, item_type, place, language_group, item_format, date_recorded, item_id),
     )
+    
+#deletes item from database    
 def delete_item(item_id):
     execute(
         """
@@ -1103,9 +1129,8 @@ def delete_item(item_id):
     """,
     (item_id,),
     )
-       
 
-
+#gets language groups       
 def get_language_groups():
     return rows(
        """
@@ -1119,6 +1144,7 @@ def get_language_groups():
        """ 
     )
 
+#gets language group by name
 def get_language_group_id_by_name(name):
     return row(
        """
@@ -1130,3 +1156,22 @@ def get_language_group_id_by_name(name):
         """,
         (name,),   
     )
+
+#custom decorators    
+def permission_required(permission):
+    def decorator(func):
+        @wraps(func)
+        @login_required
+        def wrapper(*args, **kwargs):
+            if not current_user.can(permission):
+                abort(403)
+
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
+
+
+def is_administrator(func):
+    return permission_required(Permission.ADMINISTRATOR)(func)

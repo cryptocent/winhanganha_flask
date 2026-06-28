@@ -1,29 +1,23 @@
 from datetime import date
-from tkinter import CURRENT
 from flask import abort, flash, redirect, render_template, request, session, url_for
 from uuid import uuid4
 from werkzeug.utils import secure_filename
 import MySQLdb
-from pathlib import Path
-from project import ALLOWED_EXTENSIONS, ALLOWED_IMG_EXTENSIONS, app
-from project.decorators import permission_required, is_administrator
-from project.forms import LoginForm, MetadataForm, RegistrationForm, AccessRequestForm, AddItemForm, CancelUserRequest, AssessmentForm, AccessRequestDecisionForm, ContactForm
+from project import app
+from project.forms import LoginForm, RegistrationForm, AccessRequestForm, AddItemForm, CancelUserRequest, AssessmentForm, AccessRequestDecisionForm, ContactForm
 from project.models import (
     Permission,
-    Role,
     User,
     add_new_item,
     allowed_file,
     cancel_user_request,
     create_user,
-    execute,
     fetch_access_level_filters,
     fetch_all_roles,
     fetch_collections,
     fetch_filtered_items,
     fetch_item,
     fetch_assessment,
-    fetch_item_status,
     fetch_item_type_filters,
     fetch_review_status_filters,
     fetch_role_by_permission,
@@ -33,12 +27,8 @@ from project.models import (
     get_assessment_rows,
     get_featured_items,
     get_item_metadata,
-    get_user_reviewer,
     load_users,
     next_id,
-    row,
-    rows,
-    secure_filename,
     submit_access_request,
     update_user_permissions,
     verify_user_password,
@@ -56,9 +46,12 @@ from project.models import (
     login_required, 
     login_user, 
     logout_user, 
-    current_user
+    current_user,
+    permission_required, 
+    is_administrator
 )
 
+#error handlers 
 @app.errorhandler(403)
 def page_not_found(e):
     return render_template("403.html"), 403
@@ -76,6 +69,7 @@ def internal_error(e):
 def internal_error(e):
     return render_template("500.html"), 500
 
+#routes homepage
 @app.route("/")
 def home():
     featured_items = get_featured_items()
@@ -85,7 +79,7 @@ def home():
         featured_items=featured_items,
     )
 
-
+#displays items in cards for user to navigate into item detail
 @app.route("/items")
 def items():
     filters = {
@@ -108,7 +102,7 @@ def items():
         filters=filters,
     )
 
-
+#item detail page ensures sensitive information is hidden if access is below user permission, user can request access. 
 @app.route("/item/<item_id>", methods=["GET", "POST"])
 def item_detail(item_id):
     form = AccessRequestForm(request.form)
@@ -151,7 +145,7 @@ def item_detail(item_id):
     
     return render_template("item_detail.html", item=item, requirements=requirements, form=form, access_request=request_row)
 
-
+#item assessment list must be at least archivist
 @app.route("/item-assessments", methods=["GET", "POST"])
 @login_required
 @permission_required(Permission.ARCHIVIST)
@@ -160,6 +154,7 @@ def assessments():
     access_request_rows = get_pending_access_requests()  
     return render_template("item_assessment_list.html", assessments=assessment_rows, access_requests = access_request_rows)
 
+#item assessment must be at least archivist
 @app.route("/item-assessment/<item_id>", methods=["GET", "POST"])
 @login_required
 @permission_required(Permission.ARCHIVIST)
@@ -201,7 +196,7 @@ def assessment_item(item_id):
     return render_template("item_assessment.html", assessment=assessment_row, notes = assessments_comments,
         languages = language_groups, form=form, item_id=item_id, final_decision=final_decision)
 
-
+#review access request must be at least reviewer
 @app.route("/access_request/<access_request_id>", methods=["GET", "POST"])
 @login_required
 @permission_required(Permission.REVIEWER)
@@ -228,7 +223,7 @@ def register():
 
 
 
-
+#login page 
 @app.route("/login", methods=["GET", "POST"])
 def login():
     form = LoginForm(request.form)
@@ -251,17 +246,16 @@ def login():
     return render_template("login.html", form=form)
 
 
-
+#logout of the app destroy session and make user anonymous
 @app.route("/logout")
 @login_required
 def logout():
     logout_user()
-    session.clear()
     flash("You have been logged out.", "success")
     return redirect(url_for("login"))
 
 
-
+#user account page
 @app.route("/account", methods=["GET", "POST"])
 @login_required
 def account():
@@ -286,7 +280,7 @@ def account():
     return render_template("account.html", requests=request_rows, form=cancel_request_form)
 
 
-
+#admin page adjust user permissions 
 @app.route("/dashboard", methods=["GET", "POST"])
 @login_required
 @is_administrator
@@ -306,7 +300,7 @@ def dashboard():
     return render_template("admin.html", users=request_users, roles=all_roles)
 
 
-
+#adds items to db
 @app.route("/add-item", methods=["GET", "POST"])
 @login_required
 @permission_required(Permission.ARCHIVIST)
@@ -344,7 +338,7 @@ def add_item():
         dataArray["record_path"] = None
 
         if collection_img and collection_img.filename:
-            if allowed_file(collection_img.filename, ALLOWED_IMG_EXTENSIONS):
+            if allowed_file(collection_img.filename, app.config["ALLOWED_IMG_EXTENSIONS"]):
                 original_img_name = secure_filename(collection_img.filename)
                 img_ext = original_img_name.rsplit(".", 1)[1].lower()
                 img_filename = f"{uuid4().hex}.{img_ext}"
@@ -354,7 +348,7 @@ def add_item():
                 dataArray["img_path"] = f"uploads/{img_filename}"
      
         if file_record and file_record.filename:
-            if allowed_file(file_record.filename, ALLOWED_EXTENSIONS):
+            if allowed_file(file_record.filename, app.config["ALLOWED_EXTENSIONS"]):
                 original_file_name = secure_filename(file_record.filename)
                 file_ext = original_file_name.rsplit(".", 1)[1].lower()
                 filename = f"{uuid4().hex}.{file_ext}"
@@ -378,10 +372,12 @@ def add_item():
     language_groups = get_language_groups()
     return render_template("item_add.html", collections=collections, languages=language_groups, form=form)
 
+#displays about page
 @app.route("/about")
 def about():
     return render_template("about.html")
 
+#displays contact form
 @app.route("/contact", methods=["GET", "POST"])
 def contact():
     form = ContactForm()
@@ -391,6 +387,7 @@ def contact():
         return redirect(url_for("contact"))
     return render_template("contact.html", form=form)
 
+#update items must be at least archivist
 @app.route("/item/<item_id>/update", methods=["POST"])
 @login_required
 @permission_required(Permission.ARCHIVIST)
@@ -410,6 +407,7 @@ def update_item_details(item_id):
     flash("Item details updated successfully.", "success")
     return redirect(url_for("assessment_item", item_id=item_id))
 
+#delete item from database must be administrator
 @app.route("/item/<item_id>/delete", methods=["POST"])
 @login_required
 @is_administrator
