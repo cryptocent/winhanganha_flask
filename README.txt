@@ -9,7 +9,6 @@ project/
   __init__.py        Flask app, Bootstrap, MySQL and Flask Env setup
   views.py           Routes and page handlers
   models.py          Database and other functions
-  decorators.py      Custom decorators and permission checks
   forms.py           WTForms classes
   templates/         Jinja templates
   static/            CSS and images
