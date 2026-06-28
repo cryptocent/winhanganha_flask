@@ -43,7 +43,7 @@ python3 -m pip install -r requirements.txt
 ## update parameters to suit environment
 app.config["SECRET_KEY"] = "SuperSecretKeyForSessionManagement13579"
 app.config["MYSQL_HOST"] = "127.0.0.1"
-app.config["MYSQL_PORT"] = 3307
+app.config["MYSQL_PORT"] = 3306
 app.config["MYSQL_USER"] = "root"
 app.config["MYSQL_PASSWORD"] = "root"
 app.config["MYSQL_DB"] = "winhanganha_archive"
