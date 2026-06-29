@@ -13,12 +13,30 @@
 
 <body id="top">
 
-<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="{{ url_for('home') }}">
+<!-- ========== TOP UTILITY BAR ========== -->
+<div class="utility-bar py-3 fixed-top border-bottom border-secondary">
+  <div class="container h-100 d-flex justify-content-end align-items-center">
+    <ul class="navbar-nav flex-row gap-3">
+      <a class="text-white text-decoration-none me-3" href="{{ url_for('home') }}">Home</a>
+      <a class="text-white text-decoration-none me-3" href="{{ url_for('items') }}">Archive</a>
+      <a class="text-white text-decoration-none me-3" href="{{ url_for('about') }}">About</a>
+      <a class="text-white text-decoration-none me-3" href="{{ url_for('home') }}#cultural-protocols">Cultural Protocols</a>
+      <a class="text-white text-decoration-none me-3" href="{{ url_for('contact') }}">Contact</a>
+    </ul>
+  </div>
+</div>  
+
+<!-- ========== MAIN NAV BAR ========== -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top" style="top:52px;">
+  <div class="container">
+
+     <!-- Brand / Logo -->
+     <a class="navbar-brand"
+       href="{{ url_for('home') }}"
+       style="color: #9C1C1C;">
       First Nations Winhanganha Archive
     </a>
-
+    <!-- Mobile toggle button -->
     <button 
       class="navbar-toggler" 
       type="button" 
@@ -30,64 +48,45 @@
     >
       <span class="navbar-toggler-icon"></span>
     </button>
-
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav ms-auto">
-        <li class="nav-item">
-          <a class="nav-link {% if request.endpoint == 'home' %}active{% endif %}" href="{{ url_for('home') }}">
-            Home
-          </a>
-        </li>
 
-        <li class="nav-item">
-          <a class="nav-link {% if request.endpoint == 'items' %}active{% endif %}" href="{{ url_for('items') }}">
-            Archive
-          </a>
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('about') }}">About</a>
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('home') }}#cultural-protocols">
-            Cultural Protocols
-          </a>
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('contact') }}">Contact</a>
-        </li>
-		  {% if current_user.is_authenticated and current_user.can(Permission.REVIEWER) %}
-		  <li class="nav-item">
-          <a class="nav-link {% if request.endpoint == 'assessment' %}active{% endif %}" href="{{ url_for('assessments') }}">
-            Assessment Portal
-          </a>
-        </li>
-        {% endif %}
+        <!-- USER DROPDOWN (logged in) / LOGIN + REGISTER (logged out)  -->
         {% if current_user.is_authenticated %}
-          <li class="nav-item">
-            <a class="nav-link {% if request.endpoint == 'account' %}active{% endif %}" href="{{ url_for('account') }}">
-              Account
-            </a>
-          </li>
-
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('logout') }}">
-              Logout
-            </a>
-          </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #9C1C1C;">
+            {{ current_user.preferred_title }} {{current_user.name }}
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+            <li>
+              <a class="dropdown-item" href="{{ url_for('account') }}">Account</a>
+            </li>
+            {% if current_user.can(Permission.ARCHIVIST) %}
+            <li>
+              <a class="dropdown-item" href="{{ url_for('add_item') }}">Add item to collection</a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="{{ url_for('assessments') }}">Assessment Portal</a>
+            </li>
+            {% endif %}
+            {% if current_user.is_administrator() %}
+            <li>
+              <a class="dropdown-item" href="{{ url_for('dashboard') }}">Admin Dashboard</a>
+            </li>
+            {% endif %}
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a>
+            </li>
+          </ul>
+        </li>
         {% else %}
-          <li class="nav-item">
-            <a class="nav-link {% if request.endpoint == 'login' %}active{% endif %}" href="{{ url_for('login') }}">
-              Login
-            </a>
+        <!--  LOGIN + REGISTER  -->
+        <li class="nav-item">
+          <a class="nav-link {% if request.endpoint == 'login' %}active{% endif %}" href="{{ url_for('login') }}">Login</a>
           </li>
-
           <li class="nav-item">
-            <a class="nav-link {% if request.endpoint == 'register' %}active{% endif %}" href="{{ url_for('register') }}">
-              Register
-            </a>
+            <a class="nav-link {% if request.endpoint == 'register' %}active{% endif %}" href="{{ url_for('register')}}">Register</a>
           </li>
         {% endif %}
       </ul>
@@ -129,26 +128,34 @@
 
 <hr class="featurette-divider">
 
-<footer class="container padb">
-  <div class="padb">
+<footer>
+
+  <div class="footer-acknowledgement padb">
     First Nations Winhanganha Archive acknowledges the Traditional Owners of Country throughout Australia and acknowledges their continuing connection to land, waters and community. We pay our respects to the people, the cultures and the Elders past and present.
   </div>
 
-  <div class="padb">
+  <div class="footer-protocols padb">
     Materials in this archive remain connected to the communities, families and knowledge holders from which they come. Users must follow cultural use conditions and must not reproduce, download or share restricted materials without permission.
   </div>
 
-  <p class="float-end">
-    <a href="#top">Back to top</a>
-  </p>
+  <div class="footer-bottom">
+    <div class="container py-3">
 
-  <p>
-    © 2026 First Nations Winhanganha Archive ·
-    <a href="#">Privacy</a> ·
-    <a href="#">Terms</a> ·
-    <a href="{{ url_for('home') }}#cultural-protocols">Cultural Protocols</a> ·
-    <a href="#">Contact</a>
-  </p>
+      <p class="float-end mb-0">
+        <a href="#top">Back to top</a>
+      </p>
+
+      <p class="mb-0">
+        © 2026 First Nations Winhanganha Archive |
+        <a href="#">   Privacy</a> |
+        <a href="#">Terms </a> |
+        <a href="{{ url_for('home') }}#cultural-protocols">Cultural Protocols </a> |
+        <a href="#">Contact</a>
+      </p>
+
+    </div>
+  </div>
+
 </footer>
 
 <div class="modal fade" id="reviewerLoginModal" tabindex="-1" aria-labelledby="reviewerLoginModalLabel" aria-hidden="true">
