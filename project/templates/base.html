@@ -22,8 +22,6 @@
       <a class="text-white text-decoration-none me-3" href="{{ url_for('about') }}">About</a>
       <a class="text-white text-decoration-none me-3" href="{{ url_for('home') }}#cultural-protocols">Cultural Protocols</a>
       <a class="text-white text-decoration-none me-3" href="{{ url_for('contact') }}">Contact</a>
-<<<<<<< HEAD
-=======
     </ul>
   </div>
 </div>  
@@ -33,9 +31,6 @@
   <div class="container">
 
      <!-- Brand / Logo -->
-<<<<<<< HEAD
-    <a class="navbar-brand" href="{{ url_for('home') }}">
-=======
      <a class="navbar-brand"
        href="{{ url_for('home') }}"
        style="color: #9C1C1C;">
@@ -59,9 +54,6 @@
         <!-- USER DROPDOWN (logged in) / LOGIN + REGISTER (logged out)  -->
         {% if current_user.is_authenticated %}
         <li class="nav-item dropdown">
-<<<<<<< HEAD
-          <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-=======
           <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #9C1C1C;">
             {{ current_user.preferred_title }} {{current_user.name }}
           </a>

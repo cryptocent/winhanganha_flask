@@ -9,7 +9,7 @@ from flask_mysqldb import MySQL
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 #sets upload folder makes it if it does not exist
-upload_folder = BASE_DIR / "project" / "static" / "uploads"
+upload_folder = BASE_DIR / "project" / "uploads"
 os.makedirs(upload_folder, exist_ok=True)
 
 #allowed extensions for archive upload types
