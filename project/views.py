@@ -72,11 +72,24 @@ def internal_error(e):
 #routes homepage
 @app.route("/")
 def home():
+    filters = {
+        "search": "",
+        "collection": "",
+        "access_level": "",
+        "item_type": "",
+        "review_status": "",
+    }
+
     featured_items = get_featured_items()
+
     return render_template(
         "index.html",
         collections=fetch_collections(),
         featured_items=featured_items,
+        item_types=fetch_item_type_filters(),
+        access_levels=fetch_access_level_filters(),
+        review_statuses=fetch_review_status_filters(),
+        filters=filters,
     )
 
 #displays items in cards for user to navigate into item detail

@@ -14,7 +14,11 @@
 <body id="top">
 
 <!-- ========== TOP UTILITY BAR ========== -->
+<<<<<<< HEAD
 <div class="bg-dark py-3 fixed-top border-bottom border-secondary">
+=======
+<div class="utility-bar py-3 fixed-top border-bottom border-secondary">
+>>>>>>> bf790199cea08bffb30618aba74c7232f0818c30
   <div class="container h-100 d-flex justify-content-end align-items-center">
     <ul class="navbar-nav flex-row gap-3">
       <a class="text-white text-decoration-none me-3" href="{{ url_for('home') }}">Home</a>
@@ -22,6 +26,10 @@
       <a class="text-white text-decoration-none me-3" href="{{ url_for('about') }}">About</a>
       <a class="text-white text-decoration-none me-3" href="{{ url_for('home') }}#cultural-protocols">Cultural Protocols</a>
       <a class="text-white text-decoration-none me-3" href="{{ url_for('contact') }}">Contact</a>
+<<<<<<< HEAD
+=======
+    </ul>
+>>>>>>> bf790199cea08bffb30618aba74c7232f0818c30
   </div>
 </div>  
 
@@ -30,7 +38,13 @@
   <div class="container">
 
      <!-- Brand / Logo -->
+<<<<<<< HEAD
     <a class="navbar-brand" href="{{ url_for('home') }}">
+=======
+     <a class="navbar-brand"
+       href="{{ url_for('home') }}"
+       style="color: #9C1C1C;">
+>>>>>>> bf790199cea08bffb30618aba74c7232f0818c30
       First Nations Winhanganha Archive
     </a>
     <!-- Mobile toggle button -->
@@ -51,7 +65,11 @@
         <!-- USER DROPDOWN (logged in) / LOGIN + REGISTER (logged out)  -->
         {% if current_user.is_authenticated %}
         <li class="nav-item dropdown">
+<<<<<<< HEAD
           <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+=======
+          <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #9C1C1C;">
+>>>>>>> bf790199cea08bffb30618aba74c7232f0818c30
             {{ current_user.preferred_title }} {{current_user.name }}
           </a>
           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
@@ -125,26 +143,34 @@
 
 <hr class="featurette-divider">
 
-<footer class="container padb">
-  <div class="padb">
+<footer>
+
+  <div class="footer-acknowledgement padb">
     First Nations Winhanganha Archive acknowledges the Traditional Owners of Country throughout Australia and acknowledges their continuing connection to land, waters and community. We pay our respects to the people, the cultures and the Elders past and present.
   </div>
 
-  <div class="padb">
+  <div class="footer-protocols padb">
     Materials in this archive remain connected to the communities, families and knowledge holders from which they come. Users must follow cultural use conditions and must not reproduce, download or share restricted materials without permission.
   </div>
 
-  <p class="float-end">
-    <a href="#top">Back to top</a>
-  </p>
+  <div class="footer-bottom">
+    <div class="container py-3">
 
-  <p>
-    © 2026 First Nations Winhanganha Archive ·
-    <a href="#">Privacy</a> ·
-    <a href="#">Terms</a> ·
-    <a href="{{ url_for('home') }}#cultural-protocols">Cultural Protocols</a> ·
-    <a href="#">Contact</a>
-  </p>
+      <p class="float-end mb-0">
+        <a href="#top">Back to top</a>
+      </p>
+
+      <p class="mb-0">
+        © 2026 First Nations Winhanganha Archive |
+        <a href="#">   Privacy</a> |
+        <a href="#">Terms </a> |
+        <a href="{{ url_for('home') }}#cultural-protocols">Cultural Protocols </a> |
+        <a href="#">Contact</a>
+      </p>
+
+    </div>
+  </div>
+
 </footer>
 
 <div class="modal fade" id="reviewerLoginModal" tabindex="-1" aria-labelledby="reviewerLoginModalLabel" aria-hidden="true">

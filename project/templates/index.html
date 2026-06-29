@@ -9,44 +9,98 @@
 {% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container my-5">
   <div class="row">
-    <div class="col-lg-6 mb-4">
-      <h4>Winhanganha (win-HANG-ahn-ha)</h4>
-      <p>Winhanganha means "To Know, Think, Remember" in the Wiradjuri language.</p>
-      <p>Although Winhanganha is a Wiradjuri word, this Archive is for all First Nations peoples.</p>
-    </div>
-
-    <div class="col-lg-6 mb-4">
-      <h4>What is the First Nations Winhanganha Archive?</h4>
-      <p>The Archive is a curated digital repository of First Nations knowledge, language, story and history. It is reviewed and approved by First Nations Elders to support the preservation of culture for future generations.</p>
-    </div>
-  </div>
-</div>
-
-<hr class="my-5">
-
-<div class="container padb" id="collections">
-  <h2>Collections</h2>
-
-  <div class="row g-4">
-    {% for collection in collections %}
-    <div class="col-lg-4 col-md-6">
-      <div class="card h-100">
-        <div class="card-body">
-          <h5 class="card-title">{{ collection.name }}</h5>
-          <p class="card-text">{{ collection.description }}</p>
-          <a href="{{ url_for('items', collection=collection.name) }}" class="btn btn-dark mybutton">
-            View {{ collection.name }}
-          </a>
-        </div>
+    <div class="col-lg-6 mb-4 d-flex">
+      <div class="p-4 rounded shadow-sm" style="background-color: #d1b57b; color:#946b38;">
+        <h4>Winhanganha (win-HANG-ahn-ha):</h4>
+        <p>Winhanganha means "To Know, Think, Remember" in the Wiradjuri language.</p>
+        <p>Although Winhanganha is a Wiradjuri word, this Archive is for all First Nations peoples.</p>
       </div>
     </div>
-    {% endfor %}
+
+    <div class="col-lg-6 mb-4 d-flex">
+      <div class="p-4 rounded shadow-sm" style="background-color: #7F5C30; color:#C2C4BE;">
+        <h4>What is the First Nations Winhanganha Archive?</h4>
+        <p>The Archive is a curated digital repository of First Nations knowledge, language, story and history. It is reviewed and approved by First Nations Elders to support the preservation of culture for future generations.</p>
+      </div>
+    </div>
   </div>
 </div>
 
-<div class="container padb" id="featured-items">  
+<hr class="my-2">
+
+   
+<div class="container padtb">
+  <div class="row " >
+    <div class="col-lg-8">
+      <h2 style="color: #811207;">Archive Search</h2>
+      <p>Use the filters to explore collection items by topic, format, language group and access level.</p>
+    </div>
+  </div>
+
+  <form class="filter-panel mt-3" method="get" action="{{ url_for('items') }}">
+    <div class="input-group input-group-lg">
+      <input 
+        name="search" 
+        value="{{ filters.search }}" 
+        class="form-control" 
+        type="text" 
+        placeholder="Search by title, place, language or keyword..."
+      >
+      <button class="btn btn-dark mybutton" type="submit">Search</button>
+    </div>
+
+    <div class="row mt-3 g-2">
+      <div class="col-md-3">
+        <select name="collection" class="form-select">
+          <option value="">Collection</option>
+          {% for collection in collections %}
+            <option value="{{ collection.name }}" {% if filters.collection == collection.name %}selected{% endif %}>
+              {{ collection.name }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-md-3">
+        <select name="access_level" class="form-select">
+          <option value="">Access Level</option>
+          {% for level in access_levels %}
+            <option value="{{ level.access_level }}" {% if filters.access_level == level.access_level %}selected{% endif %}>
+              {{ level.access_level }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-md-3">
+        <select name="item_type" class="form-select">
+          <option value="">Item Type</option>
+          {% for type in item_types %}
+            <option value="{{ type.item_type }}" {% if filters.item_type == type.item_type %}selected{% endif %}>
+              {{ type.item_type }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-md-3">
+        <select name="review_status" class="form-select">
+          <option value="">Review Status</option>
+          {% for status in review_statuses %}
+            <option value="{{ status.review_status }}" {% if filters.review_status == status.review_status %}selected{% endif %}>
+              {{ status.review_status }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+  </form>
+</div>
+
+<div class="container padb mt-5" id="featured-items">  
+    <h2 style="color: #811207;">Featured Collections</h2>
   <div class="row g-4">
     {% for item in featured_items %}
     <div class="col-lg-4 col-md-6">
@@ -59,7 +113,9 @@
 
         <div class="card-body">
           <h5 class="card-title">{{ item.title }}</h5>
-          <p class="card-text">{{ item.description }}</p>
+          <p class="card-text">
+                {{ item.description | truncate(100, False, '...', 0) }}
+              </p>
 
           <ul class="metadata-list">
             <li><strong>Collection:</strong> {{ item.collection_name }}</li>
@@ -86,51 +142,43 @@
   </div>
 </div>
 
-<div class="container padb">
-  <div class="row">
-    <div class="col-lg-8">
-      <h2>Archive Search</h2>
-      <p>Use the filters to explore collection items by topic, format, language group and access level.</p>
-    </div>
-  </div>
-
-  <form class="filter-panel mt-3" method="get" action="{{ url_for('items') }}">
-    <div class="input-group input-group-lg">
-      <input 
-        name="search" 
-        class="form-control" 
-        type="text" 
-        placeholder="Search by title, place, language or keyword..."
-      >
-      <button class="btn btn-dark mybutton" type="submit">Search</button>
-    </div>
-  </form>
-</div>
-
 <span class="anchor padtb" id="cultural-protocols">&nbsp;</span>
 
 <div class="container padb">
-  <h2>Cultural Protocols</h2>
-  <p>This archive contains culturally significant material. Some records may require restricted access, Elder approval or community consultation before viewing or reuse.</p>
-  <p>Items are reviewed by authorised library staff and community representatives before publication. Assessment considers cultural sensitivity, community permissions, access restrictions and appropriate metadata.</p>
-  <p>Users are expected to respect cultural ownership, community knowledge and access conditions attached to each item.</p>
 
-  <h2>Access Levels</h2>
-  <p>
-    Items in the archive may be 
-    <span class="badge bg-success">Public</span>, 
-    <span class="badge bg-danger">Restricted</span>, 
-    <span class="badge bg-warning text-dark">Under Review</span>, or 
-    <span class="badge bg-secondary">Private</span> 
-    depending on cultural protocols and community approval.
-  </p>
+  <div class="info-section mb-4">
+    <h4>Cultural Protocols</h4>
+    <p>This archive contains culturally significant material. Some records may require restricted access, Elder approval or community consultation before viewing or reuse.</p>
+    <p>Items are reviewed by authorised library staff and community representatives before publication. Assessment considers cultural sensitivity, community permissions, access restrictions and appropriate metadata.</p>
+    <p>Users are expected to respect cultural ownership, community knowledge and access conditions attached to each item.</p>
+  </div>
 
-  <h2>User Access</h2>
-  <p>Public visitors can browse approved records. Registered researchers may request access to restricted items. Elders and authorised reviewers can assess items before public release.</p>
+  <div class="info-section mb-4">
+    <h4>Access Levels</h4>
+    <p>
+      Items in the archive may be
+      <span class="badge bg-success">Public</span>,
+      <span class="badge bg-danger">Restricted</span>,
+      <span class="badge bg-warning text-dark">Under Review</span>, or
+      <span class="badge bg-secondary">Private</span>
+      depending on cultural protocols and community approval.
+    </p>
+  </div>
 
-  <h2>Request Access</h2>
-  <p>Some records require approval before viewing. Users may submit a request for library staff and community reviewers to consider.</p>
+  <div class="info-section mb-4">
+    <h4>User Access</h4>
+    <p>Public visitors can browse approved records. Registered researchers may request access to restricted items. Elders and authorised reviewers can assess items before public release.</p>
+  </div>
 
-  <a href="{{ url_for('items') }}" class="btn btn-dark mybutton">View request process</a>
+  <div class="info-section mb-4">
+    <h4>Request Access</h4>
+    <p>Some records require approval before viewing. Users may submit a request for library staff and community reviewers to consider.</p>
+
+    <a href="{{ url_for('items') }}" class="btn btn-dark mybutton">
+      View request process
+    </a>
+  </div>
+
 </div>
+
 {% endblock %}

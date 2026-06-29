@@ -1,3 +1,11 @@
+:root {
+  --color-red: #811207;
+  --color-brown: #6B5023;
+  --color-tan: #B38D5C;
+  --color-gold: #C09B4B;
+  --color-sage: #B7B8A6;
+}
+
 body {
   padding-top: 90px;
 }
@@ -30,8 +38,10 @@ body {
 }
 
 .card {
-  border: 1px solid #e5e5e5;
-  padding-bottom: 30px;
+  border: 1px solid var(--color-sage);
+  padding: 10px;
+  box-shadow: 0 8px 20px rgba(129, 18, 7, 0.25);
+  
 }
 
 .mybutton {
@@ -50,12 +60,14 @@ a.mybutton {
 
 .navbar {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  border-bottom: 2px solid var(--color-gold);
+ 
 }
 
 .filter-panel,
 .restricted-panel {
-  background: #f8f9fa;
-  border: 1px solid #e5e5e5;
+  background: #F6F1E8;
+  border: 1px solid var(--color-sage);
   padding: 20px;
   border-radius: 4px;
 }
@@ -72,6 +84,7 @@ a.mybutton {
 
 .assessment-label {
   font-weight: 600;
+  color: var(--color-brown);
 }
 
 .decision-box {
@@ -81,7 +94,7 @@ a.mybutton {
 }
 
 .discussion-note {
-  border-left: 4px solid #e5e5e5;
+  border-left: 4px solid var(--color-tan);
   padding-left: 15px;
   margin-bottom: 18px;
 }
@@ -155,9 +168,104 @@ textarea {
 }
 
 .accordion-button.collapsed {
-    background-color: #fff8f0; 
-    color: #495057;           
+    background-color: #fdf6ee;
+    color: var(--color-red);          
 }
 .accordion-item {
-    border-color: #e9ecef;
+    border-color: var(--color-sage);
 }
+
+.utility-bar {
+  background-color: #811207 !important;
+}
+
+.utility-bar a {
+  color: #ffffff !important;
+}
+
+
+footer {
+  width: 100%;
+  clear: both;
+}
+/*
+footer a {
+  color: #ffffff;
+}
+
+footer a:hover {
+  color: var(--color-gold);
+}
+*/
+
+.cultural-notice {
+  background-color: var(--color-brown);
+  color: #ffffff;
+  text-align: left;
+  padding: 8px;
+  font-size: 0.85rem;
+  position: fixed;
+  top: 104px;
+  width: 100%;
+  z-index: 999;
+}
+
+.card-img-top {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+}
+
+.footer-acknowledgement {
+    background: #B7B8A6;
+    text-align: center;
+    padding: 2rem;
+    width: 100%;
+}
+
+.footer-protocols {
+    background: #f8f8f8;
+    color:#811207;
+    font-weight: bold;
+    text-align: center;
+    padding: 2rem;
+    width: 100%;
+}
+
+.footer-bottom {
+    background: #9b1c1c;
+    color: white;
+    padding: 1rem 0;
+    text-align: center;
+    width: 100%;
+}
+
+.footer-bottom a {
+    color: white;
+    text-decoration: none;
+}
+
+.footer-bottom a:hover {
+    text-decoration: underline;
+}
+
+.info-section {
+    background: #F6F1E8;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 6px 16px rgba(107, 80, 35, 0.12);
+}
+
+.info-section h4 {
+    background: #B7B8A6;
+    color: white;
+    margin: -2rem -2rem 1.5rem;
+    padding: 1rem 2rem;
+    border-radius: 12px 12px 0 0;
+}
+
+.anchor {
+    display: block;
+    scroll-margin-top: 100px;
+}
+
