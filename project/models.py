@@ -853,7 +853,7 @@ def get_featured_items():
         JOIN Collection c ON c.collectionID = ci.collectionID
         JOIN CulturalMetadata cm ON cm.itemID = ci.itemID
         WHERE cm.accessLevel = 'Public'
-          AND cm.communityApprovalStatus = 'Approved for public release'
+          AND cm.communityApprovalStatus = 'Public'
           AND ci.status != 'Under Assessment'
         ORDER BY ci.itemID
         LIMIT 3
@@ -1032,7 +1032,7 @@ def get_mapped_status(status_string):
 
     status_mapping = {
         'Decision pending': 'Under Assessment',
-        'Release publicly': 'Approved for public release',
+        'Release publicly': 'Public',
         'Keep private': 'Private',
         'Release with restricted access': 'Restricted',
         'Library consultation': 'Restricted',
@@ -1167,6 +1167,19 @@ def get_language_group_id_by_name(name):
         """,
         (name,),   
     )
+
+def add_collections(name,description):
+    collection_id = next_id("collection","collectionID", "C")
+    add_collection = execute(
+        """
+        INSERT INTO collection
+        (collectionID,collectionName,description)
+        VALUES
+        (%s,%s,%s)   
+        """,(collection_id,name,description),
+    )
+    
+    return add_collection == 1
 
 #custom decorators    
 def permission_required(permission):

@@ -38,16 +38,21 @@
       </div>
       <div class="mb-3">
         {{ render_field(form.description) }}
-         <small class="form-text text-muted">No sensitive information should be entered into this field.</small>
+         <small class="form-text text-muted">This data is hidden to unauthorised users</small>
       </div>
       <div class="mb-3">
         {{ render_field(form.place) }}
         <small class="form-text text-muted">Place reference for the Item.</small>
       </div>
       <div class="mb-3">
-        <input type="text" id="language_group" name="language_group" list="lang-list" class="form-control" placeholder="Start typing to select languages..." value>
-        <small class="form-text text-muted">Add Language information to identify ownership.</small>
-        <datalist id="lang-list"></datalist>
+        <select name="language_group" id="language_group" class="form-control" required>
+          <option value="">Select Language</option>
+        {% for language in languages %}
+          <option value="{{language["languageName"]}}">{{language["languageName"]}}</option>
+        {% endfor %}
+        </select>
+      <small class="form-text text-muted">Add Language information to identify ownership.</small>
+
       </div>
       <div class="mb-3">
         {{ render_field(form.item_type) }}

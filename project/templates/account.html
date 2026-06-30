@@ -14,6 +14,7 @@
       <li class="breadcrumb-item active" aria-current="page">Account</li>
     </ol>
   </nav>
+  
 </div>
 <div class="container padb">
 
@@ -72,26 +73,27 @@
 
       <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="staffToolsDropdown">
 
+       {% if current_user.can(Permission.ARCHIVIST) %}
+          <li>
+            <a class="dropdown-item" href="{{ url_for('add_collection') }}">
+              New Collection
+            </a>
+          </li> 
+          <li>
+            <a class="dropdown-item" href="{{ url_for('add_item') }}">
+              New Item
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="{{ url_for('assessments') }}">
+              Assessment &amp; Request Portal
+            </a>
+          </li>
+        {% endif %}
         {% if current_user.is_administrator() %}
           <li>
             <a class="dropdown-item" href="{{ url_for('dashboard') }}">
               Admin Dashboard
-            </a>
-          </li>
-        {% endif %}
-
-        {% if current_user.can(Permission.ARCHIVIST) %}
-          <li>
-            <a class="dropdown-item" href="{{ url_for('add_item') }}">
-              Add Item to Collection
-            </a>
-          </li>
-        {% endif %}
-
-        {% if current_user.can(Permission.ARCHIVIST) %}
-          <li>
-            <a class="dropdown-item" href="{{ url_for('assessments') }}">
-              Assessment Portal
             </a>
           </li>
         {% endif %}

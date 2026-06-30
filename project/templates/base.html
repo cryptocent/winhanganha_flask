@@ -62,12 +62,21 @@
               <a class="dropdown-item" href="{{ url_for('account') }}">Account</a>
             </li>
             {% if current_user.can(Permission.ARCHIVIST) %}
-            <li>
-              <a class="dropdown-item" href="{{ url_for('add_item') }}">Add item to collection</a>
-            </li>
-            <li>
-              <a class="dropdown-item" href="{{ url_for('assessments') }}">Assessment Portal</a>
-            </li>
+          <li>
+            <a class="dropdown-item" href="{{ url_for('add_collection') }}">
+              New Collection
+            </a>
+          </li> 
+          <li>
+            <a class="dropdown-item" href="{{ url_for('add_item') }}">
+              New Item
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="{{ url_for('assessments') }}">
+              Assessment &amp; Request Portal
+            </a>
+          </li>
             {% endif %}
             {% if current_user.is_administrator() %}
             <li>

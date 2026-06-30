@@ -4,11 +4,12 @@ from uuid import uuid4
 from werkzeug.utils import secure_filename
 import MySQLdb
 from project import app
-from project.forms import LoginForm, RegistrationForm, AccessRequestForm, AddItemForm, CancelUserRequest, AssessmentForm, AccessRequestDecisionForm, ContactForm
+from project.forms import LoginForm, RegistrationForm, AccessRequestForm, AddItemForm, CancelUserRequest, AssessmentForm, AccessRequestDecisionForm, ContactForm, AddCollectionForm
 from project.models import (
     Permission,
     User,
     add_new_item,
+    add_collections,
     allowed_file,
     cancel_user_request,
     create_user,
@@ -238,7 +239,25 @@ def register():
 
     return render_template("register.html", form=form)
 
-
+@app.route("/add-collection", methods=["GET","POST"])
+@login_required
+@permission_required(Permission.ARCHIVIST)
+def add_collection():
+    form = AddCollectionForm(request.form)
+    collections = fetch_collections()
+    
+    if request.method == "POST":
+        success = add_collections(request.form.get("collection_name"), request.form.get("collection_description"))    
+        
+        if success:
+            flash("Collection added successfully.", "success")
+            return redirect(url_for("add_collection"))
+        
+        flash("Collection could not be added.", "danger")
+        return redirect(url_for("add_collection"))
+        
+    return render_template("collection_add.html", collections=collections, form=form)    
+        
 
 #login page 
 @app.route("/login", methods=["GET", "POST"])

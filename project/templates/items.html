@@ -111,7 +111,7 @@
           <img 
             src="{{ url_for('static', filename=item.image_filename) }}" 
             class="card-img-top max-width-img" 
-            alt="Image for {{ item.title }}"
+            alt="Image for {{ item.title.title() }}"
           >
         {% else %}
           <div class="bg-light text-muted d-flex align-items-center justify-content-center" style="height: 180px;">
@@ -120,7 +120,7 @@
         {% endif %}
 
         <div class="card-body d-flex flex-column">
-          <h5 class="card-title">{{ item.title }}</h5>
+          <h5 class="card-title">{{ item.title.title() }}</h5>
 
           {% if can_view_description %}
             {% if item.description %}

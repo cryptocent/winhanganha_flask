@@ -64,7 +64,7 @@
                   </td>
 
                   <td>
-                    <strong>{{ assessment.title }}</strong><br>
+                    <strong>{{ assessment.title.title() }}</strong><br>
                     <small class="text-muted">ID: {{ assessment.item_id }}</small><br>
                     <small>
                       {{ assessment.description[:120] }}
@@ -134,7 +134,7 @@
                     class="modal-title"
                     id="assessmentModalLabel{{ assessment.assessment_id }}"
                   >
-                    Assessment Summary: {{ assessment.title }}
+                    Assessment Summary: {{ assessment.title.title() }}
                   </h5>
 
                   <button
@@ -151,7 +151,7 @@
                       {% if assessment.image_filename %}
                         <img
                           src="{{ url_for('static', filename=assessment.image_filename) }}"
-                          alt="{{ assessment.title }}"
+                          alt="{{ assessment.title.title() }}"
                           class="img-fluid rounded"
                         >
                       {% endif %}

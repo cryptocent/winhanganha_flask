@@ -178,4 +178,10 @@ class AccessRequestDecisionForm(Form):
         ]
     )
 
-    
+class AddCollectionForm(Form):
+    collection_name = StringField("Collection Name", validators=[DataRequired()])
+    collection_description = TextAreaField(
+        "Collection Description",
+        validators=[DataRequired()]
+    )
+    submit = SubmitField("Add collection") 

@@ -33,14 +33,14 @@
     <!-- Left column: item card -->
     <div class="col-lg-7">
       <h2>Item Under Assessment</h2>
-      <p>This page represents the internal assessment workflow for authorised Elders, community representatives and archive staff.</p>
+      <p>Internal assessment workflow for authorised Elders, community representatives and archive staff.</p>
 
       <div class="card">
         <img src="{{ url_for('static', filename=assessment.image_filename) }}" class="card-img-top max-width-img"
           alt="Placeholder image for item under assessment">
 
         <div class="card-body">
-          <h3 class="h4 card-title">{{ assessment.title }}</h3>
+          <h3 class="h4 card-title">{{ assessment.title.title() }}</h3>
           <p class="card-text">{{ assessment.description }}</p>
 
           <ul class="metadata-list">
@@ -139,10 +139,13 @@
               <label class="form-label">Place</label>
               <input type="text" class="form-control" name="place" value="{{ assessment.place }}">
             </div>
-            <div class="mb-3">
-              <label class="form-label">Language Group</label>
-              <input type="text" id="language_group" value="{{ assessment.language_group }}" name="language_group" list="lang-list" class="form-control" placeholder="Start typing to select languages...">
-              <datalist id="lang-list"></datalist>
+            <div class="mb-3">            
+        <select name="language_group" id="language_group" class="form-control" required>
+          <option value="">Select Language</option>
+        {% for language in languages %}
+          <option value="{{language["languageName"]}}" {% if assessment.language_group == language["languageName"] %}selected{% endif %}>{{language["languageName"]}}</option>language_group
+        {% endfor %}
+        </select>
             </div>
             <div class="mb-3">
               <label class="form-label">Format</label>

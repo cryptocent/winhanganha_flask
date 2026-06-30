@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% from "_helpers.html" import render_field %}
+
+{% block title %}Add Collection | First Nations Winhanganha Archive{% endblock %}
+{% block hero_title %}Add New Collection{% endblock %}
+
+{% block content %}
+
+<div class="container">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb bg-light p-3 rounded">
+      <li class="breadcrumb-item">
+        <a href="{{ url_for('home') }}">Home</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{{ url_for('account') }}">Account</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        Add Collection to Archive
+      </li>
+    </ol>
+  </nav>
+</div>
+
+<div class="container padb">
+  <div class="row g-4 align-items-start">
+
+    <!-- Collection list on the left -->
+    <div class="col-lg-7">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-header bg-dark text-white">
+          <h2 class="h5 mb-0">Existing Collections</h2>
+        </div>
+
+        <div class="card-body p-0">
+          {% if collections %}
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th scope="col">Collection Name</th>
+                    <th scope="col">Collection Description</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {% for collection in collections %}
+                    <tr>
+                      <td class="fw-semibold">
+                        {{ collection.name }}
+                      </td>
+                      <td>
+                        {% if collection.description %}
+                          {{ collection.description }}
+                        {% else %}
+                          <span class="text-muted">
+                            No description recorded.
+                          </span>
+                        {% endif %}
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <div class="p-4 text-center text-muted">
+              No collections have been recorded.
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Add collection form on the right -->
+    <div class="col-lg-5">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-light">
+          <h2 class="h5 mb-0">Enter New Collection</h2>
+        </div>
+
+        <div class="card-body">
+          <p class="text-muted">
+            Please enter the name and description of the new collection.
+          </p>
+
+          <form method="post">
+            <div class="mb-3">
+              {{ render_field(form.collection_name) }}
+            </div>
+
+            <div class="mb-3">
+              {{ render_field(form.collection_description) }}
+            </div>
+
+            <div class="d-grid d-md-flex justify-content-md-end">
+              {{ render_field(form.submit, "btn btn-outline-dark") }}
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

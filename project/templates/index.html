@@ -108,11 +108,11 @@
         <img 
           src="{{ url_for('static', filename=item.image_filename) }}" 
           class="card-img-top" 
-          alt="Placeholder image for {{ item.title }}"
+          alt="Placeholder image for {{ item.title.title() }}"
         >
 
         <div class="card-body">
-          <h5 class="card-title">{{ item.title }}</h5>
+          <h5 class="card-title">{{ item.title.title() }}</h5>
           <p class="card-text">
                 {{ item.description | truncate(100, False, '...', 0) }}
               </p>
