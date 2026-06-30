@@ -36,15 +36,15 @@ app.config["ALLOWED_IMG_EXTENSIONS"] = ALLOWED_IMG_EXTENSIONS
 ## update parameters to suit environment
 app.config["SECRET_KEY"] = "SuperSecretKeyForSessionManagement13579"
 app.config["MYSQL_HOST"] = "127.0.0.1"
-app.config["MYSQL_PORT"] = 3307 #3306 is default MySQL port
+app.config["MYSQL_PORT"] = 3306 #3306 is default MySQL port
 app.config["MYSQL_USER"] = "root"
 app.config["MYSQL_PASSWORD"] = "root"
 app.config["MYSQL_DB"] = "winhanganha_archive"
 
 app.config["FLASK_RUN_HOST"] = "127.0.0.1"
-app.config["FLASK_RUN_PORT"] = 1337 #5000 is default for flask app (http://localhost:5000)
+app.config["FLASK_RUN_PORT"] = 5000 #5000 is default for flask app (http://localhost:5000)
 ## must be false on submission
-app.config["FLASK_DEBUG"] = True 
+app.config["FLASK_DEBUG"] = False 
 
 ## end of parameter updates
 ###############################################################################################################
