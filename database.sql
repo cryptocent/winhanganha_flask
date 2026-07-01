@@ -45,6 +45,7 @@ CREATE TABLE `accessrequest` (
 
 LOCK TABLES `accessrequest` WRITE;
 /*!40000 ALTER TABLE `accessrequest` DISABLE KEYS */;
+INSERT INTO `accessrequest` (`requestID`, `itemID`, `userID`, `requestDate`, `requestStatus`, `purpose`) VALUES ('Q010', 'I001', 'U006', '2026-06-23', 'Pending', 'Asking access for the study reasons.'), ('Q011', 'I007', 'U006', '2026-06-23', 'Pending', 'Asking access for the study reasons.');
 /*!40000 ALTER TABLE `accessrequest` ENABLE KEYS */;
 UNLOCK TABLES;
 

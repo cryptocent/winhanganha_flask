@@ -800,7 +800,7 @@ def get_access_request_by_id(requestID):
                 accessLevel,
                 culturalSensitivity
             from culturalmetadata
-        ), langroup as ( 
+        ), langgroup as ( 
             select 
                 languagegroupid,
                 languagename
@@ -820,7 +820,7 @@ def get_access_request_by_id(requestID):
             i.itemtype as item_type,
             i.imagepath as image_filename,
             i.place as place,
-            i.languagename as language_group,
+            lg.languagename as language_group,
             i.collectionID as collection_id,
             c.collectionname as collection_name,
             m.metadataID as metadata_id,
