@@ -37,7 +37,7 @@ app.config["ALLOWED_IMG_EXTENSIONS"] = ALLOWED_IMG_EXTENSIONS
 ## update parameters to suit environment
 app.config["SECRET_KEY"] = "SuperSecretKeyForSessionManagement13579"
 app.config["MYSQL_HOST"] = "127.0.0.1"
-app.config["MYSQL_PORT"] = 3307 #3306 is default MySQL port
+app.config["MYSQL_PORT"] = 3306 #3306 is default MySQL port
 app.config["MYSQL_USER"] = "root"
 app.config["MYSQL_PASSWORD"] = "root"
 app.config["MYSQL_DB"] = "winhanganha_archive"
