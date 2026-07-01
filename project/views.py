@@ -413,12 +413,12 @@ def add_item():
 def about():
     return render_template("about.html")
 
-#displays about page
+#displays privacy page
 @app.route("/privacy")
 def privacy():
     return render_template("privacy.html")
 
-#displays about page
+#displays terms page
 @app.route("/terms")
 def terms():
     return render_template("terms.html")
