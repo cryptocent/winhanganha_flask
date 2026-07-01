@@ -41,7 +41,7 @@
     <div class="row mt-3 g-2">
       <div class="col-md-3">
         <select name="collection" class="form-select">
-          <option value="">Collection</option>
+          <option value="">Select Collection</option>
           {% for collection in collections %}
             <option value="{{ collection.name }}" {% if filters.collection == collection.name %}selected{% endif %}>
               {{ collection.name }}
@@ -52,7 +52,7 @@
 
       <div class="col-md-3">
         <select name="access_level" class="form-select">
-          <option value="">Access Level</option>
+          <option value="">Select Access Level</option>
           {% for level in access_levels %}
             <option value="{{ level.access_level }}" {% if filters.access_level == level.access_level %}selected{% endif %}>
               {{ level.access_level }}
@@ -63,7 +63,7 @@
 
       <div class="col-md-3">
         <select name="item_type" class="form-select">
-          <option value="">Item Type</option>
+          <option value="">Select Item Type</option>
           {% for type in item_types %}
             <option value="{{ type.item_type }}" {% if filters.item_type == type.item_type %}selected{% endif %}>
               {{ type.item_type }}
@@ -74,7 +74,7 @@
 
       <div class="col-md-3">
         <select name="review_status" class="form-select">
-          <option value="">Review Status</option>
+          <option value="">Select Review Status</option>
           {% for status in review_statuses %}
             <option value="{{ status.review_status }}" {% if filters.review_status == status.review_status %}selected{% endif %}>
               {{ status.review_status }}

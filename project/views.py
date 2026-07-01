@@ -1,5 +1,5 @@
 from datetime import date
-from flask import abort, flash, redirect, render_template, request, session, url_for
+from flask import abort, flash, redirect, render_template, request, url_for
 from uuid import uuid4
 from werkzeug.utils import secure_filename
 import MySQLdb
@@ -66,9 +66,9 @@ def page_not_found(e):
 def internal_error(e):
     return render_template("500.html"), 500
 
-#@app.errorhandler(MySQLdb.Error)
-#def internal_error(e):
-#    return render_template("500.html"), 500
+@app.errorhandler(MySQLdb.Error)
+def internal_error(e):
+    return render_template("500.html"), 500
 
 #routes homepage
 @app.route("/")
@@ -141,7 +141,7 @@ def item_detail(item_id):
 
     if request.method == "POST" and form.validate():
         request_array = {}
-        if session.get("userID") is None:
+        if not current_user.is_authenticated:
             flash("You must be logged in to request access.", "warning")
             return redirect(url_for("login"))
         

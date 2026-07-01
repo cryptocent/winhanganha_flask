@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
-from flask import Flask, session, g
+from flask import Flask
+from flask_login import LoginManager
 from flask_bootstrap import Bootstrap5
 from flask_mysqldb import MySQL
 
@@ -36,7 +37,7 @@ app.config["ALLOWED_IMG_EXTENSIONS"] = ALLOWED_IMG_EXTENSIONS
 ## update parameters to suit environment
 app.config["SECRET_KEY"] = "SuperSecretKeyForSessionManagement13579"
 app.config["MYSQL_HOST"] = "127.0.0.1"
-app.config["MYSQL_PORT"] = 3306 #3306 is default MySQL port
+app.config["MYSQL_PORT"] = 3307 #3306 is default MySQL port
 app.config["MYSQL_USER"] = "root"
 app.config["MYSQL_PASSWORD"] = "root"
 app.config["MYSQL_DB"] = "winhanganha_archive"
@@ -44,7 +45,7 @@ app.config["MYSQL_DB"] = "winhanganha_archive"
 app.config["FLASK_RUN_HOST"] = "127.0.0.1"
 app.config["FLASK_RUN_PORT"] = 5000 #5000 is default for flask app (http://localhost:5000)
 ## must be false on submission
-app.config["FLASK_DEBUG"] = False 
+app.config["FLASK_DEBUG"] = False
 
 ## end of parameter updates
 ###############################################################################################################
@@ -56,11 +57,18 @@ app.config["MYSQL_CHARSET"] = "utf8mb4"
 
 #database connection
 mysql = MySQL(app)
+
+#flask-login session management
+login_manager = LoginManager()
+login_manager.login_view = "login"
+login_manager.login_message = "Please log in to access this page."
+login_manager.login_message_category = "warning"
+login_manager.init_app(app)
+
 #bootstrap css and js injection
 bootstrap = Bootstrap5(app)
 
 from project import models
-from project import views
 from project.models import (
     User,
     AnonymousUser,
@@ -68,25 +76,18 @@ from project.models import (
     fetch_role_by_permission
 )
 
-#ensure user context is loaded before each request. sets to anonymous if no user
-@app.before_request
-def load_logged_in_user():
-    user_id = session.get("userID")
+login_manager.anonymous_user = AnonymousUser
 
-    if user_id is None:
-        g.current_user = AnonymousUser()
-        return
-
+@login_manager.user_loader
+def load_user(user_id):
     user = get_user_by_id(user_id)
 
     if user is None:
-        g.current_user = AnonymousUser()
-        session.clear()
-        return
+        return None
 
     permission = fetch_role_by_permission(user["roleID"])
 
-    g.current_user = User(
+    return User(
         user["userID"],
         user["roleID"],
         permission,
@@ -95,15 +96,11 @@ def load_logged_in_user():
         user["email"]
     )
 
-#allows usage of current_user throughout app
-@app.context_processor
-def inject_current_user():
-    from project.models import current_user
-    return dict(current_user=current_user)
-
 #inserts roles each time app is loaded (if roles are actually changed in the source this ensures the roles are updated in the DB)
 with app.app_context():
     models.Role.insert_roles()
+
+from project import views
 
 #allows usage of permisson throughout app
 @app.context_processor

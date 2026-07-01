@@ -40,6 +40,7 @@
             <li><strong>Access Request ID:</strong> {{ access_request.access_request_id}}</li>
             <li><strong>Requestor:</strong> {{ access_request.requestor_name }}</li>
             <li><strong>Requestor email:</strong> {{ access_request.requestor_email}}</li>
+            <li><strong>Request purpose:</strong> {{ access_request.purpose}}</li>
             <br>
             <li><strong>Item title:</strong> 
               <a href="{{ url_for('item_detail', item_id=access_request.item_id) }}" class="lowprofilelink btn btn-link">{{ access_request.title }}</a>

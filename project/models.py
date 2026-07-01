@@ -1,7 +1,7 @@
 from functools import wraps
 from datetime import date
-from flask import session, redirect, url_for, flash, g, abort
-from werkzeug.local import LocalProxy
+from flask import abort
+from flask_login import AnonymousUserMixin, UserMixin, current_user, login_required, login_user, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
 from project import mysql
 
@@ -15,7 +15,7 @@ class Permission:
         ADMINISTRATOR = 16
 
 #user class
-class User:
+class User(UserMixin):
     def __init__(self, userID, roleID, permissions, preferred_title, name, email):
         self.id = str(userID)
         self.userID = userID
@@ -26,9 +26,6 @@ class User:
         self.name = name
         self.email = email
 
-    @property
-    def is_authenticated(self):
-        return True
 
     def can(self, permission):
         return (self.permissions & permission) == permission
@@ -37,8 +34,7 @@ class User:
         return self.can(Permission.ADMINISTRATOR)
 
 #anonymous user class
-class AnonymousUser:
-    is_authenticated = False
+class AnonymousUser(AnonymousUserMixin):
     id = None
     userID = None
     preferred_title = ""
@@ -53,36 +49,6 @@ class AnonymousUser:
     def is_administrator(self):
         return False
 
-
-def _get_current_user():
-    return getattr(g, "current_user", AnonymousUser())
-
-#allows use of current_user for user
-current_user = LocalProxy(_get_current_user)
-
-
-
-def login_user(user):
-    session["user_id"] = user.userID
-    session["userID"] = user.userID
-    g.current_user = user
-
-
-def logout_user():
-    session.clear()
-    g.current_user = AnonymousUser()
-
-# wrapper for access control 
-def login_required(view):
-    @wraps(view)
-    def wrapped_view(*args, **kwargs):
-        if not current_user.is_authenticated:
-            flash("Please log in to access this page.", "warning")
-            return redirect(url_for("login"))
-
-        return view(*args, **kwargs)
-
-    return wrapped_view
 
 #role permissions class    
 # Role definitions
@@ -912,7 +878,7 @@ def fetch_filtered_items(filters):
         JOIN Collection c ON c.collectionID = ci.collectionID
         LEFT JOIN CulturalMetadata cm ON cm.itemID = ci.itemID
         LEFT JOIN languagegroup lg on ci.languagegroupid = lg.languagegroupid
-        WHERE ci.status != 'Under Assessment'
+        WHERE ci.status != 'Under Assessment' 
     """
 
     params = []
@@ -928,13 +894,12 @@ def fetch_filtered_items(filters):
             AND (
                 ci.title LIKE %s
                 OR ci.description LIKE %s
-                OR ci.languageGroup LIKE %s
                 OR ci.place LIKE %s
-                OR c.collectionName LIKE %s
+                OR lg.languageName LIKE %s
             )
         """
         term = f"%{search}%"
-        params.extend([term, term, term, term, term])
+        params.extend([term, term, term, term])
 
     if collection:
         sql += " AND c.collectionName = %s"
