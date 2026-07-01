@@ -413,6 +413,16 @@ def add_item():
 def about():
     return render_template("about.html")
 
+#displays about page
+@app.route("/privacy")
+def privacy():
+    return render_template("privacy.html")
+
+#displays about page
+@app.route("/terms")
+def terms():
+    return render_template("terms.html")
+
 #displays contact form
 @app.route("/contact", methods=["GET", "POST"])
 def contact():
